@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { Navbar, Footer } from "./components/Navigation";
 import { HomePage } from "./pages/HomePage";
 import { ToolPage } from "./pages/ToolPage";
@@ -201,6 +201,69 @@ const ContactPage = () => (
   </div>
 );
 
+const AboutPage = () => (
+  <div className="mx-auto max-w-4xl px-4 py-24 sm:px-6 lg:px-8">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="prose prose-zinc max-w-none"
+    >
+      <h1 className="text-4xl font-black text-zinc-900 mb-8">About Convertly</h1>
+      <p className="text-zinc-500 text-lg mb-8 font-medium">
+        Convertly is a leading provider of high-performance file conversion and manipulation tools. Our mission is to make file processing fast, secure, and accessible to everyone.
+      </p>
+
+      <div className="space-y-12 text-zinc-600 font-medium">
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <div>
+            <h2 className="text-2xl font-bold text-zinc-900 mb-4">Our Mission</h2>
+            <p>
+              We believe that powerful software should be simple to use. Convertly was built to eliminate the frustration of complex file conversions, providing a streamlined experience that respects user privacy and data security.
+            </p>
+          </div>
+          <div className="bg-orange-50 p-8 rounded-3xl border border-orange-100">
+            <Zap className="h-12 w-12 text-orange-600 mb-4 fill-current" />
+            <h3 className="text-xl font-bold text-zinc-900 mb-2">Speed First</h3>
+            <p className="text-sm">Our cloud-native architecture ensures your files are processed in seconds, not minutes.</p>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-bold text-zinc-900 mb-4">Why Choose Convertly?</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="flex gap-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-green-50 text-green-600">
+                <Shield className="h-5 w-5" />
+              </div>
+              <div>
+                <h4 className="font-bold text-zinc-900">Privacy Guaranteed</h4>
+                <p className="text-sm text-zinc-500">Files are automatically deleted 30 minutes after processing.</p>
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                <CheckCircle2 className="h-5 w-5" />
+              </div>
+              <div>
+                <h4 className="font-bold text-zinc-900">High Quality</h4>
+                <p className="text-sm text-zinc-500">We use industry-standard libraries to ensure perfect results.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-zinc-900 rounded-[3rem] p-12 text-white text-center">
+          <h2 className="text-3xl font-black mb-4">Ready to get started?</h2>
+          <p className="text-zinc-400 mb-8 max-w-xl mx-auto">Join thousands of users who trust Convertly for their daily file processing needs.</p>
+          <Link to="/" className="inline-block rounded-full bg-orange-600 px-10 py-4 font-black transition-all hover:bg-orange-700 hover:scale-105 active:scale-95">
+            Explore Tools
+          </Link>
+        </section>
+      </div>
+    </motion.div>
+  </div>
+);
+
 export default function App() {
   const [plan, setPlan] = useState("Free");
   const [isUpgradeModalOpen, setUpgradeModalOpen] = useState(false);
@@ -252,6 +315,7 @@ export default function App() {
               <Route path="/privacy" element={<PrivacyPage />} />
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/contact" element={<ContactPage />} />
+              <Route path="/about" element={<AboutPage />} />
             </Routes>
           </main>
           <Footer />

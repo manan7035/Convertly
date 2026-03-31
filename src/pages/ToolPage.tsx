@@ -22,6 +22,24 @@ export const ToolPage = () => {
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [isComplete, setIsComplete] = useState(false);
+  
+  // Options state
+  const [resizeWidth, setResizeWidth] = useState<string>("");
+  const [resizeHeight, setResizeHeight] = useState<string>("");
+  const [quality, setQuality] = useState<number>(80);
+  const [rotationAngle, setRotationAngle] = useState<string>("90");
+  const [cropX, setCropX] = useState<string>("0");
+  const [cropY, setCropY] = useState<string>("0");
+  const [cropWidth, setCropWidth] = useState<string>("500");
+  const [cropHeight, setCropHeight] = useState<string>("500");
+  const [targetImageFormat, setTargetImageFormat] = useState<string>("");
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
 
   const toolName = toolId?.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
   
@@ -29,7 +47,8 @@ export const ToolPage = () => {
     if (toolId === "extract-audio") return "mp3";
     if (toolId === "video-to-mp4") return "mp4";
     if (toolId === "video-to-gif") return "gif";
-    if (toolId === "resize-image" || toolId === "rotate-image") return "";
+    if (targetImageFormat) return targetImageFormat;
+    if (toolId === "resize-image" || toolId === "rotate-image" || toolId === "crop-image") return "";
     if (toolId?.includes("-to-")) return toolId.split("-to-")[1];
     return "webp"; // Default for images
   };
@@ -44,25 +63,42 @@ export const ToolPage = () => {
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const newFiles = Array.from(e.target.files).slice(0, 10); // Limit to 10
+      const newFiles = Array.from(e.target.files).slice(0, 10) as File[]; // Limit to 10
       setFiles(prev => [...prev, ...newFiles].slice(0, 10));
       setError(null);
       setIsComplete(false);
+
+      // Create preview for the first file if it's an image
+      const firstFile = newFiles[0];
+      if (firstFile && firstFile.type.startsWith("image/")) {
+        const url = URL.createObjectURL(firstFile);
+        setPreviewUrl(url);
+      }
+
+      // Fix: Clear input value to allow re-uploading the same file
+      e.target.value = "";
     }
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     if (e.dataTransfer.files) {
-      const newFiles = Array.from(e.dataTransfer.files).slice(0, 10);
+      const newFiles = Array.from(e.dataTransfer.files).slice(0, 10) as File[];
       setFiles(prev => [...prev, ...newFiles].slice(0, 10));
       setError(null);
       setIsComplete(false);
+      
+      const firstFile = newFiles[0];
+      if (firstFile && firstFile.type.startsWith("image/")) {
+        const url = URL.createObjectURL(firstFile);
+        setPreviewUrl(url);
+      }
     }
   };
 
   const removeFile = (index: number) => {
     setFiles(prev => prev.filter((_, i) => i !== index));
+    if (index === 0) setPreviewUrl(null);
   };
 
   const handleConvert = async () => {
@@ -76,6 +112,24 @@ export const ToolPage = () => {
     files.forEach(file => formData.append("files", file));
     formData.append("targetFormat", targetFormat);
     formData.append("toolId", toolId || "");
+    
+    // Add options to formData
+    if (toolId === "resize-image") {
+      formData.append("width", resizeWidth);
+      formData.append("height", resizeHeight);
+    }
+    if (toolId === "compress-image" || toolId?.includes("-to-") || toolId === "resize-image" || toolId === "rotate-image") {
+      formData.append("quality", quality.toString());
+    }
+    if (toolId === "rotate-image") {
+      formData.append("rotationAngle", rotationAngle);
+    }
+    if (toolId === "crop-image") {
+      formData.append("cropX", cropX);
+      formData.append("cropY", cropY);
+      formData.append("cropWidth", cropWidth);
+      formData.append("cropHeight", cropHeight);
+    }
 
     const endpoint = toolId?.includes("video") || toolId?.includes("extract-audio") 
       ? "/api/convert/video" 
@@ -89,7 +143,8 @@ export const ToolPage = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to convert files. Please try again.");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to convert files. Please try again.");
       }
 
       setProgress(80);
@@ -245,9 +300,191 @@ export const ToolPage = () => {
               </motion.div>
             )}
 
+            {/* Tool Options */}
+            {!isUploading && !isComplete && (
+              <div className="space-y-6 pt-4 border-t border-zinc-200">
+                {/* Target Format Selection for Image Tools */}
+                {(toolId === "resize-image" || toolId === "rotate-image" || toolId === "crop-image" || toolId === "compress-image") && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-zinc-900 ml-2">Output Format</label>
+                    <div className="grid grid-cols-4 gap-2">
+                      {["", "webp", "png", "jpg"].map((fmt) => (
+                        <button
+                          key={fmt}
+                          onClick={() => setTargetImageFormat(fmt)}
+                          className={`rounded-xl border py-2 text-xs font-bold transition-all ${
+                            targetImageFormat === fmt
+                              ? "border-orange-600 bg-orange-50 text-orange-600"
+                              : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300"
+                          }`}
+                        >
+                          {fmt === "" ? "Original" : fmt.toUpperCase()}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {toolId === "resize-image" && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-zinc-900 ml-2">Width (px)</label>
+                      <input 
+                        type="number" 
+                        value={resizeWidth}
+                        onChange={(e) => setResizeWidth(e.target.value)}
+                        placeholder="Auto"
+                        className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-medium focus:border-orange-600 focus:outline-none transition-all shadow-sm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-zinc-900 ml-2">Height (px)</label>
+                      <input 
+                        type="number" 
+                        value={resizeHeight}
+                        onChange={(e) => setResizeHeight(e.target.value)}
+                        placeholder="Auto"
+                        className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-medium focus:border-orange-600 focus:outline-none transition-all shadow-sm"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {toolId === "rotate-image" && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-zinc-900 ml-2">Rotation Angle</label>
+                    <div className="grid grid-cols-3 gap-3">
+                      {["90", "180", "270"].map((angle) => (
+                        <button
+                          key={angle}
+                          onClick={() => setRotationAngle(angle)}
+                          className={`rounded-2xl border py-3 text-sm font-bold transition-all ${
+                            rotationAngle === angle
+                              ? "border-orange-600 bg-orange-50 text-orange-600"
+                              : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300"
+                          }`}
+                        >
+                          {angle}°
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {toolId === "crop-image" && (
+                  <div className="space-y-4">
+                    {previewUrl && (
+                      <div className="relative mx-auto max-w-full overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100 p-2">
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase mb-2 text-center">Crop Preview (Approximate)</p>
+                        <div className="relative inline-block mx-auto">
+                          <img src={previewUrl} alt="Preview" className="max-h-[300px] w-auto rounded-lg" />
+                          <div 
+                            className="absolute border-2 border-orange-500 bg-orange-500/20 pointer-events-none"
+                            style={{
+                              left: `${(parseInt(cropX) || 0) / 10}%`,
+                              top: `${(parseInt(cropY) || 0) / 10}%`,
+                              width: `${(parseInt(cropWidth) || 100) / 10}%`,
+                              height: `${(parseInt(cropHeight) || 100) / 10}%`,
+                              maxWidth: "100%",
+                              maxHeight: "100%"
+                            }}
+                          />
+                        </div>
+                        <p className="text-[10px] text-zinc-400 mt-2 text-center italic">Note: Preview is scaled. Actual crop uses pixel values.</p>
+                      </div>
+                    )}
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-zinc-900 ml-2">Quick Presets</label>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { label: "1:1 Square", w: "500", h: "500" },
+                          { label: "4:3 Classic", w: "800", h: "600" },
+                          { label: "16:9 Wide", w: "1280", h: "720" },
+                          { label: "9:16 Story", w: "720", h: "1280" },
+                        ].map((preset) => (
+                          <button
+                            key={preset.label}
+                            onClick={() => {
+                              setCropWidth(preset.w);
+                              setCropHeight(preset.h);
+                            }}
+                            className="rounded-full bg-zinc-100 px-3 py-1 text-[10px] font-bold text-zinc-600 hover:bg-orange-100 hover:text-orange-600 transition-all"
+                          >
+                            {preset.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-zinc-900 ml-2">X Offset (px)</label>
+                        <input 
+                          type="number" 
+                          value={cropX}
+                          onChange={(e) => setCropX(e.target.value)}
+                          className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-medium focus:border-orange-600 focus:outline-none transition-all shadow-sm"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-zinc-900 ml-2">Y Offset (px)</label>
+                        <input 
+                          type="number" 
+                          value={cropY}
+                          onChange={(e) => setCropY(e.target.value)}
+                          className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-medium focus:border-orange-600 focus:outline-none transition-all shadow-sm"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-zinc-900 ml-2">Crop Width (px)</label>
+                        <input 
+                          type="number" 
+                          value={cropWidth}
+                          onChange={(e) => setCropWidth(e.target.value)}
+                          className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-medium focus:border-orange-600 focus:outline-none transition-all shadow-sm"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-zinc-900 ml-2">Crop Height (px)</label>
+                        <input 
+                          type="number" 
+                          value={cropHeight}
+                          onChange={(e) => setCropHeight(e.target.value)}
+                          className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-medium focus:border-orange-600 focus:outline-none transition-all shadow-sm"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {(toolId === "compress-image" || toolId?.includes("-to-") || toolId === "resize-image" || toolId === "rotate-image" || toolId === "crop-image") && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between ml-2">
+                      <label className="text-sm font-bold text-zinc-900">Quality: {quality}%</label>
+                      <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
+                        {quality > 80 ? "Best Quality" : quality > 50 ? "Balanced" : "Smallest Size"}
+                      </span>
+                    </div>
+                    <input 
+                      type="range" 
+                      min="1" 
+                      max="100" 
+                      value={quality}
+                      onChange={(e) => setQuality(parseInt(e.target.value))}
+                      className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-orange-600"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="flex gap-4 pt-4 border-t border-zinc-200">
               <button
-                onClick={() => setFiles([])}
+                onClick={() => {
+                  setFiles([]);
+                  setPreviewUrl(null);
+                }}
                 disabled={isUploading}
                 className="flex-1 rounded-full border border-zinc-200 py-4 text-lg font-bold text-zinc-600 transition-all hover:bg-white hover:text-zinc-900 disabled:opacity-50"
               >

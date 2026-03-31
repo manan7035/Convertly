@@ -64,6 +64,14 @@ const tools = [
     color: "bg-blue-50 text-blue-600",
   },
   {
+    id: "crop-image",
+    name: "Crop Image",
+    description: "Crop your images to specific dimensions easily.",
+    icon: ImageIcon,
+    category: "Image",
+    color: "bg-blue-50 text-blue-600",
+  },
+  {
     id: "video-to-mp4",
     name: "Video to MP4",
     description: "Convert any video format to MP4 with high quality.",
@@ -121,7 +129,7 @@ export const HomePage = () => {
   return (
     <div className="flex flex-col gap-24 py-16 overflow-x-hidden">
       {/* Hero Section */}
-      <section className="relative mx-auto max-w-7xl px-4 pt-16 pb-12 text-center sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -198,7 +206,7 @@ export const HomePage = () => {
 
       {/* Features Section */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 md:gap-10 md:grid-cols-3">
           <motion.div 
             whileHover={{ scale: 1.05 }}
             className="flex flex-col items-center text-center gap-6 p-8 rounded-[2.5rem] bg-zinc-50 border border-zinc-100 shadow-sm"
@@ -252,7 +260,7 @@ export const HomePage = () => {
 
       {/* Tools Grid */}
       <section id="tools" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-16 flex flex-col items-center text-center gap-4">
+        <div className="mb-10 md:mb-16 flex flex-col items-center text-center gap-4">
           <h2 className="text-4xl font-black tracking-tight text-zinc-900">Our Tool Suite</h2>
           <p className="text-zinc-500 max-w-xl font-medium">Everything you need to handle media files in one place. Optimized for bulk processing.</p>
         </div>
@@ -294,8 +302,8 @@ export const HomePage = () => {
           <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600 rounded-full blur-[120px]" />
         </div>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 gap-16 lg:grid-cols-3 text-center">
-            <div className="flex flex-col gap-6 items-center">
+          <div className="grid grid-cols-2 gap-13 lg:grid-cols-3 text-center">
+            <div className="flex flex-col gap-4 sm:gap-6 items-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-600/20 text-orange-600">
                 <Zap className="h-8 w-8 fill-current" />
               </div>
@@ -304,7 +312,7 @@ export const HomePage = () => {
                 <p className="text-zinc-400 font-medium uppercase tracking-widest text-xs">Avg. Processing Time</p>
               </div>
             </div>
-            <div className="flex flex-col gap-6 items-center">
+            <div className="flex flex-col gap-4 sm:gap-6 items-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600/20 text-blue-600">
                 <Shield className="h-8 w-8" />
               </div>
@@ -313,7 +321,7 @@ export const HomePage = () => {
                 <p className="text-zinc-400 font-medium uppercase tracking-widest text-xs">Privacy Guaranteed</p>
               </div>
             </div>
-            <div className="flex flex-col gap-6 items-center">
+            <div className="flex flex-col gap-4 sm:gap-6 items-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-green-600/20 text-green-600">
                 <Globe className="h-8 w-8" />
               </div>
@@ -329,11 +337,11 @@ export const HomePage = () => {
       {/* Testimonials */}
       <section className="bg-zinc-900 py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10 md:mb-16">
             <h2 className="text-4xl font-black tracking-tight text-white">Loved by Creators</h2>
             <p className="mt-4 text-zinc-400 font-medium">See what our users have to say about Convertly.</p>
           </div>
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 md:grid-cols-3">
             {[
               {
                 name: "Sarah Johnson",
@@ -357,7 +365,7 @@ export const HomePage = () => {
               <motion.div 
                 key={idx}
                 whileHover={{ y: -10 }}
-                className="rounded-3xl bg-zinc-800 p-8 border border-zinc-700/50"
+                className="rounded-3xl bg-zinc-800 p-6 sm:p-8 border border-zinc-700/50"
               >
                 <div className="flex items-center gap-4 mb-6">
                   <img src={testimonial.image} alt={testimonial.name} className="h-12 w-12 rounded-full ring-2 ring-orange-600/20" referrerPolicy="no-referrer" />
@@ -375,7 +383,7 @@ export const HomePage = () => {
 
       {/* Pricing Section */}
       <section id="pricing" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-20">
+        <div className="text-center mb-10  md:mb-16">
           <h2 className="text-4xl font-black tracking-tight text-zinc-900 sm:text-5xl">Scale Your Workflow</h2>
           <p className="mt-4 text-zinc-500 font-medium text-lg">Choose the plan that fits your needs.</p>
         </div>
@@ -383,7 +391,7 @@ export const HomePage = () => {
           {/* Free Plan */}
           <motion.div 
             whileHover={{ y: -10 }}
-            className="flex flex-col rounded-[2.5rem] border border-zinc-200 bg-white p-10 shadow-sm"
+            className="flex flex-col rounded-[2.5rem] border border-zinc-200 bg-white p-8 md:p-10 shadow-sm"
           >
             <h3 className="text-xl font-bold text-zinc-900">Free Tier</h3>
             <div className="mt-6 flex items-baseline gap-1">
@@ -403,14 +411,14 @@ export const HomePage = () => {
                 </li>
               ))}
             </ul>
-            <button className="mt-12 rounded-full border-2 border-zinc-100 py-5 text-lg font-black text-zinc-400 cursor-not-allowed">
+            <button className="mt-12 rounded-full border-2 border-zinc-100 py-3 text-md font-black text-zinc-400 cursor-not-allowed">
               {plan === "Free" ? "Current Plan" : "Downgrade"}
             </button>
           </motion.div>
           {/* Pro Plan */}
           <motion.div 
             whileHover={{ y: -10 }}
-            className="relative flex flex-col rounded-[2.5rem] border-4 border-orange-600 bg-white p-10 shadow-2xl shadow-orange-600/20"
+            className="relative flex flex-col rounded-[2.5rem] border-4 border-orange-600 bg-white p-8 md:p-10 shadow-2xl shadow-orange-600/20"
           >
             <div className="absolute -top-5 left-1/2 -translate-x-1/2 rounded-full bg-orange-600 px-6 py-2 text-xs font-black text-white uppercase tracking-[0.2em] shadow-lg">
               Recommended
@@ -436,7 +444,7 @@ export const HomePage = () => {
             </ul>
             <button 
               onClick={() => setUpgradeModalOpen(true)}
-              className="mt-12 rounded-full bg-orange-600 py-5 text-lg font-black text-white shadow-lg shadow-orange-600/30 transition-all hover:bg-orange-700 hover:scale-[1.02] active:scale-[0.98]"
+              className="mt-12 rounded-full bg-orange-600 py-3 text-md font-black text-white shadow-lg shadow-orange-600/30 transition-all hover:bg-orange-700 hover:scale-[1.02] active:scale-[0.98]"
             >
               {plan === "Pro" ? "Manage Subscription" : "Upgrade to Pro"}
             </button>
@@ -445,11 +453,11 @@ export const HomePage = () => {
       </section>
 
       {/* FAQ Section */}
-      <section id="faq" className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 pb-16">
-        <div className="text-center mb-16">
+      <section id="faq" className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-10 md:mb-16">
           <h2 className="text-4xl font-black text-zinc-900">Common Questions</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
           <div className="p-8 rounded-3xl bg-zinc-50 border border-zinc-100">
             <h3 className="text-lg font-black text-zinc-900 mb-4">Is Convertly free to use?</h3>
             <p className="text-zinc-500 font-medium leading-relaxed">Yes! Our basic tools are 100% free with a 50MB limit per file. You can upgrade to our Pro plan for larger files and unlimited usage.</p>
@@ -470,8 +478,8 @@ export const HomePage = () => {
       </section>
 
       {/* Final CTA */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-32">
-        <div className="rounded-[40px] bg-orange-600 p-12 sm:p-24 text-center relative overflow-hidden">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="rounded-[40px] bg-orange-600 p-10 sm:p-14 text-center relative overflow-hidden">
           <div className="absolute top-0 left-0 h-full w-full opacity-10 pointer-events-none">
             <div className="absolute top-0 left-0 h-64 w-64 rounded-full bg-white blur-3xl -translate-x-1/2 -translate-y-1/2" />
             <div className="absolute bottom-0 right-0 h-64 w-64 rounded-full bg-white blur-3xl translate-x-1/2 translate-y-1/2" />
@@ -482,12 +490,12 @@ export const HomePage = () => {
             viewport={{ once: true }}
             className="relative z-10"
           >
-            <h2 className="text-4xl font-black tracking-tight text-white sm:text-6xl mb-8">Ready to start converting?</h2>
+            <h2 className="text-4xl font-black tracking-tight text-white sm:text-5xl mb-8">Ready to start converting?</h2>
             <p className="text-orange-100 text-xl font-medium mb-12 max-w-2xl mx-auto">Join thousands of happy users and transform your files in seconds. No credit card required to start.</p>
             <Link 
               to="/" 
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="inline-flex items-center gap-2 rounded-full bg-white px-12 py-6 text-xl font-bold text-orange-600 shadow-2xl transition-all hover:bg-orange-50 hover:scale-105 active:scale-95"
+              className="inline-flex items-center gap-2 rounded-full bg-white px-10 py-4 text-md font-bold text-orange-600 shadow-2xl transition-all hover:bg-orange-50 hover:scale-105 active:scale-95"
             >
               Get Started Now <ArrowRight className="h-6 w-6" />
             </Link>

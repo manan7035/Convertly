@@ -8,9 +8,19 @@ import sharp from "sharp";
 import cors from "cors";
 import archiver from "archiver";
 import ffmpeg from "fluent-ffmpeg";
+import { exec } from "child_process";
 
 const app = express();
 const PORT = 3000;
+
+// Check if FFmpeg is installed
+exec("ffmpeg -version", (error) => {
+  if (error) {
+    console.warn("⚠️ FFmpeg not found in system PATH. Video/Audio conversion features will be disabled.");
+  } else {
+    console.log("✅ FFmpeg detected successfully.");
+  }
+});
 
 // Ensure temp directory exists
 const TEMP_DIR = path.join(process.cwd(), "temp");
@@ -22,68 +32,135 @@ app.use(cors());
 app.use(express.json());
 
 // Multer setup for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, TEMP_DIR);
-  },
-  filename: (req, file, cb) => {
-    const uniqueName = `${uuidv4()}${path.extname(file.originalname)}`;
-    cb(null, uniqueName);
-  },
+const imageUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit for images
 });
 
-const upload = multer({
-  storage,
-  limits: { fileSize: 100 * 1024 * 1024 }, // 100MB limit for bulk
+const videoUpload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, TEMP_DIR),
+    filename: (req, file, cb) => cb(null, `${uuidv4()}${path.extname(file.originalname)}`),
+  }),
+  limits: { fileSize: 500 * 1024 * 1024 }, // 500MB limit for videos
 });
 
 // API Routes
-app.post("/api/convert/image", upload.array("files", 10), async (req, res) => {
+app.post("/api/convert/image", imageUpload.array("files", 10), async (req, res) => {
   try {
     const files = req.files as Express.Multer.File[];
     if (!files || files.length === 0) {
       return res.status(400).json({ error: "No files uploaded" });
     }
 
-    const { targetFormat, toolId } = req.body;
+    const { targetFormat, toolId, width, height, quality, rotationAngle } = req.body;
     const convertedFiles: { path: string; name: string }[] = [];
 
     // Process each file
     for (const file of files) {
-      const inputPath = file.path;
       const format = targetFormat || path.extname(file.originalname).slice(1).toLowerCase();
       const outputFilename = `${uuidv4()}.${format}`;
       const outputPath = path.join(TEMP_DIR, outputFilename);
 
-      let pipeline = sharp(inputPath);
+      try {
+        // Use buffer directly from memoryStorage
+        let pipeline = sharp(file.buffer);
+        
+        // Auto-orient based on EXIF
+        pipeline = pipeline.rotate();
 
-      // Apply tool-specific logic
-      if (toolId === "resize-image") {
-        const metadata = await pipeline.metadata();
-        if (metadata.width && metadata.height) {
-          pipeline = pipeline.resize(Math.round(metadata.width * 0.5));
+        // Apply tool-specific logic
+        if (toolId === "resize-image") {
+          const targetWidth = width ? parseInt(width as string) : undefined;
+          const targetHeight = height ? parseInt(height as string) : undefined;
+          
+          if (targetWidth || targetHeight) {
+            pipeline = pipeline.resize(targetWidth, targetHeight, {
+              fit: "inside",
+              withoutEnlargement: true
+            });
+          } else {
+            // Default to 50% if no size provided
+            const metadata = await pipeline.metadata();
+            if (metadata.width && metadata.height) {
+              pipeline = pipeline.resize(Math.round(metadata.width * 0.5));
+            }
+          }
+        } else if (toolId === "rotate-image") {
+          const angle = rotationAngle ? parseInt(rotationAngle as string) : 90;
+          pipeline = pipeline.rotate(angle);
+        } else if (toolId === "crop-image") {
+          const metadata = await pipeline.metadata();
+          const imgWidth = metadata.width || 0;
+          const imgHeight = metadata.height || 0;
+
+          let left = Math.max(0, parseInt(req.body.cropX || "0"));
+          let top = Math.max(0, parseInt(req.body.cropY || "0"));
+          let cWidth = parseInt(req.body.cropWidth || "100");
+          let cHeight = parseInt(req.body.cropHeight || "100");
+          
+          // Ensure dimensions are within bounds to prevent 500 errors
+          if (imgWidth > 0 && imgHeight > 0) {
+            if (left >= imgWidth) left = 0;
+            if (top >= imgHeight) top = 0;
+            cWidth = Math.min(cWidth, imgWidth - left);
+            cHeight = Math.min(cHeight, imgHeight - top);
+          }
+
+          if (cWidth > 0 && cHeight > 0) {
+            pipeline = pipeline.extract({ left, top, width: cWidth, height: cHeight });
+          }
         }
-      } else if (toolId === "rotate-image") {
-        pipeline = pipeline.rotate(90);
+
+        const q = quality ? parseInt(quality as string) : 80;
+
+        // Explicitly set format and options
+        if (format === "webp") {
+          pipeline = pipeline.toFormat("webp");
+          if (q === 100) {
+            pipeline = pipeline.webp({ lossless: true });
+          } else if (q >= 90) {
+            pipeline = pipeline.webp({ nearLossless: true, quality: q });
+          } else {
+            pipeline = pipeline.webp({ quality: q });
+          }
+        } else if (format === "png") {
+          pipeline = pipeline.toFormat("png");
+          if (q === 100) {
+            pipeline = pipeline.png({ compressionLevel: 9, effort: 10 });
+          } else {
+            pipeline = pipeline.png({ palette: true, quality: q, compressionLevel: 9, effort: 10 });
+          }
+        } else if (format === "jpg" || format === "jpeg") {
+          pipeline = pipeline.toFormat("jpeg");
+          pipeline = pipeline.jpeg({ quality: q, mozjpeg: true });
+        } else if (format === "gif") {
+          pipeline = pipeline.toFormat("gif");
+          pipeline = pipeline.gif();
+        } else if (format === "avif") {
+          pipeline = pipeline.toFormat("avif");
+          pipeline = pipeline.avif({ quality: q });
+        } else if (format === "tiff") {
+          pipeline = pipeline.toFormat("tiff");
+          pipeline = pipeline.tiff({ quality: q });
+        } else {
+          // Fallback for other formats
+          pipeline = pipeline.toFormat(format as any);
+        }
+
+        await pipeline.toFile(outputPath);
+        convertedFiles.push({
+          path: outputPath,
+          name: `converted-${file.originalname.split(".")[0]}.${format}`,
+        });
+      } catch (err) {
+        console.error(`Error processing file ${file.originalname}:`, err);
+        // Continue with other files if one fails
       }
+    }
 
-      // Basic conversion logic
-      if (format === "webp") {
-        pipeline = pipeline.webp({ quality: 80 });
-      } else if (format === "png") {
-        pipeline = pipeline.png();
-      } else if (format === "jpg" || format === "jpeg") {
-        pipeline = pipeline.jpeg({ quality: 80 });
-      }
-
-      await pipeline.toFile(outputPath);
-      convertedFiles.push({
-        path: outputPath,
-        name: `converted-${file.originalname.split(".")[0]}.${format}`,
-      });
-
-      // Delete input file immediately after processing
-      if (fs.existsSync(inputPath)) fs.unlinkSync(inputPath);
+    if (convertedFiles.length === 0) {
+      return res.status(500).json({ error: "Failed to process any images. Please check if the files are valid images." });
     }
 
     // If single file, download directly
@@ -129,7 +206,7 @@ app.post("/api/convert/image", upload.array("files", 10), async (req, res) => {
   }
 });
 
-app.post("/api/convert/video", upload.array("files", 10), async (req, res) => {
+app.post("/api/convert/video", videoUpload.array("files", 10), async (req, res) => {
   try {
     const files = req.files as Express.Multer.File[];
     if (!files || files.length === 0) {
@@ -145,30 +222,41 @@ app.post("/api/convert/video", upload.array("files", 10), async (req, res) => {
       const outputFilename = `${uuidv4()}.${targetFormat}`;
       const outputPath = path.join(TEMP_DIR, outputFilename);
 
-      await new Promise((resolve, reject) => {
-        let command = ffmpeg(inputPath);
-        
-        if (targetFormat === "mp3") {
-          command = command.toFormat("mp3").audioBitrate(128);
-        } else if (targetFormat === "gif") {
-          command = command.toFormat("gif").size("480x?");
-        } else {
-          command = command.toFormat(targetFormat).videoCodec("libx264").audioCodec("aac");
-        }
+      try {
+        await new Promise((resolve, reject) => {
+          let command = ffmpeg(inputPath);
+          
+          if (targetFormat === "mp3") {
+            command = command.toFormat("mp3").audioBitrate(128);
+          } else if (targetFormat === "gif") {
+            command = command.toFormat("gif").size("480x?");
+          } else {
+            command = command.toFormat(targetFormat).videoCodec("libx264").audioCodec("aac");
+          }
 
-        command
-          .on("end", resolve)
-          .on("error", reject)
-          .save(outputPath);
-      });
+          command
+            .on("end", resolve)
+            .on("error", (err) => {
+              console.error("FFmpeg error:", err);
+              reject(err);
+            })
+            .save(outputPath);
+        });
 
-      convertedFiles.push({
-        path: outputPath,
-        name: `converted-${file.originalname.split(".")[0]}.${targetFormat}`,
-      });
+        convertedFiles.push({
+          path: outputPath,
+          name: `converted-${file.originalname.split(".")[0]}.${targetFormat}`,
+        });
+      } catch (err) {
+        console.error(`Error processing video ${file.originalname}:`, err);
+      } finally {
+        // Delete input file immediately after processing
+        if (fs.existsSync(inputPath)) fs.unlinkSync(inputPath);
+      }
+    }
 
-      // Delete input file immediately after processing
-      if (fs.existsSync(inputPath)) fs.unlinkSync(inputPath);
+    if (convertedFiles.length === 0) {
+      return res.status(500).json({ error: "Failed to convert videos. Ensure FFmpeg is installed on your system." });
     }
 
     // If single file, download directly
