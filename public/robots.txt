@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://convertly-ruddy.vercel.app/sitemap.xml
