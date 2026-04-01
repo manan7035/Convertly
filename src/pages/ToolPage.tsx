@@ -43,6 +43,9 @@ export const ToolPage = () => {
 
   const toolName = toolId?.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
   const isSingleFileTool = toolId === "video-to-mp4" || toolId === "extract-audio" || toolId === "crop-image";
+
+  const apiBaseUrl = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
+  const buildEndpoint = (path: string) => apiBaseUrl ? `${apiBaseUrl}${path}` : path;
   
   const getTargetFormat = () => {
     if (toolId === "extract-audio") return "mp3";
@@ -171,9 +174,9 @@ export const ToolPage = () => {
       formData.append("cropHeight", cropHeight);
     }
 
-    const endpoint = toolId?.includes("video") || toolId?.includes("extract-audio") 
-      ? "/api/convert/video" 
-      : "/api/convert/image";
+    const endpoint = toolId?.includes("video") || toolId?.includes("extract-audio")
+      ? buildEndpoint("/api/convert/video")
+      : buildEndpoint("/api/convert/image");
     
     try {
       setProgress(30);
@@ -243,8 +246,8 @@ export const ToolPage = () => {
     }
 
     const endpoint = toolId?.includes("video") || toolId?.includes("extract-audio")
-      ? "/api/convert/video"
-      : "/api/convert/image";
+      ? buildEndpoint("/api/convert/video")
+      : buildEndpoint("/api/convert/image");
 
     try {
       setProgress(30);
