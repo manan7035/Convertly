@@ -55,10 +55,29 @@ app.post("/api/convert/image", imageUpload.array("files", 10), async (req, res) 
 
     const { targetFormat, toolId, width, height, quality, rotationAngle } = req.body;
     const convertedFiles: { path: string; name: string }[] = [];
+    const failedFiles: { name: string; message: string }[] = [];
+
+    const normalizeFormat = (fmt?: string | null): string => {
+      return (fmt || "").toString().trim().toLowerCase();
+    };
+
+    const allowedImageFormats = new Set(["webp", "png", "jpg", "jpeg", "gif", "avif", "tiff", "heif"]);
 
     // Process each file
     for (const file of files) {
-      const format = targetFormat || path.extname(file.originalname).slice(1).toLowerCase();
+      let format = normalizeFormat(targetFormat);
+      if (!format) {
+        format = path.extname(file.originalname).slice(1).toLowerCase();
+      }
+
+      if (!format) {
+        throw new Error("Unable to determine output format. Please specify a valid format.");
+      }
+
+      if (!allowedImageFormats.has(format)) {
+        throw new Error(`Unsupported image format: ${format}`);
+      }
+
       const outputFilename = `${uuidv4()}.${format}`;
       const outputPath = path.join(TEMP_DIR, outputFilename);
 
@@ -154,13 +173,18 @@ app.post("/api/convert/image", imageUpload.array("files", 10), async (req, res) 
           name: `converted-${file.originalname.split(".")[0]}.${format}`,
         });
       } catch (err) {
+        const message = err instanceof Error ? err.message : "Unknown conversion error";
         console.error(`Error processing file ${file.originalname}:`, err);
+        failedFiles.push({ name: file.originalname, message });
         // Continue with other files if one fails
       }
     }
 
     if (convertedFiles.length === 0) {
-      return res.status(500).json({ error: "Failed to process any images. Please check if the files are valid images." });
+      return res.status(500).json({
+        error: "Failed to process any images. Please check if the files are valid images.",
+        details: failedFiles,
+      });
     }
 
     // If single file, download directly

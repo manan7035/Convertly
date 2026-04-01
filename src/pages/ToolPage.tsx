@@ -42,6 +42,7 @@ export const ToolPage = () => {
   }, [previewUrl]);
 
   const toolName = toolId?.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+  const isSingleFileTool = toolId === "video-to-mp4" || toolId === "extract-audio" || toolId === "crop-image";
   
   const getTargetFormat = () => {
     if (toolId === "extract-audio") return "mp3";
@@ -58,24 +59,59 @@ export const ToolPage = () => {
   const getAcceptType = () => {
     if (toolId?.includes("video") || toolId?.includes("extract-audio")) return "video/*";
     if (toolId?.includes("pdf") || toolId?.includes("jpg-to-pdf")) return "application/pdf,image/*";
+    if (toolId?.includes("-to-")) {
+      const source = toolId.split("-to-")[0];
+      const sourceMap: Record<string, string> = {
+        webp: ".webp",
+        png: ".png",
+        jpg: ".jpg,.jpeg",
+        jpeg: ".jpg,.jpeg",
+        gif: ".gif",
+        avif: ".avif",
+        tiff: ".tiff,.tif",
+        heif: ".heif,.heic",
+      };
+      return sourceMap[source] || "image/*";
+    }
     return "image/*";
   };
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const newFiles = Array.from(e.target.files).slice(0, 10) as File[]; // Limit to 10
-      setFiles(prev => [...prev, ...newFiles].slice(0, 10));
+      const chosen = Array.from(e.target.files);
+      const newFiles = isSingleFileTool ? chosen.slice(0, 1) : chosen.slice(0, 10); // Limit for tool type
+
+      // Prevent exact duplicate file re-add (same name + size + timestamp + type)
+      const uniqueFileId = (file: File) => `${file.name}-${file.size}-${file.lastModified}-${file.type}`;
+      const existingIds = new Set(files.map(uniqueFileId));
+      const filteredNewFiles = newFiles.filter((file) => {
+        const id = uniqueFileId(file);
+        if (existingIds.has(id)) return false;
+        existingIds.add(id);
+        return true;
+      });
+
+      if (filteredNewFiles.length === 0) {
+        setError("This file is already in the upload queue. Please clear and re-add if needed.");
+        e.target.value = "";
+        return;
+      }
+
+      setFiles((prev) => {
+        const combined = isSingleFileTool ? filteredNewFiles.slice(0, 1) : [...prev, ...filteredNewFiles];
+        return isSingleFileTool ? combined : combined.slice(0, 10);
+      });
       setError(null);
       setIsComplete(false);
 
-      // Create preview for the first file if it's an image
-      const firstFile = newFiles[0];
-      if (firstFile && firstFile.type.startsWith("image/")) {
+      // Create preview for the first new image file
+      const firstFile = filteredNewFiles.find((file) => file.type.startsWith("image/"));
+      if (firstFile) {
         const url = URL.createObjectURL(firstFile);
         setPreviewUrl(url);
       }
 
-      // Fix: Clear input value to allow re-uploading the same file
+      // Reset input value so same file can be selected repeatedly
       e.target.value = "";
     }
   };
@@ -83,8 +119,12 @@ export const ToolPage = () => {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     if (e.dataTransfer.files) {
-      const newFiles = Array.from(e.dataTransfer.files).slice(0, 10) as File[];
-      setFiles(prev => [...prev, ...newFiles].slice(0, 10));
+      const chosen = Array.from(e.dataTransfer.files);
+      const newFiles = isSingleFileTool ? chosen.slice(0, 1) : chosen.slice(0, 10);
+      setFiles(prev => {
+        const combined = isSingleFileTool ? newFiles : [...prev, ...newFiles];
+        return isSingleFileTool ? combined : combined.slice(0, 10);
+      });
       setError(null);
       setIsComplete(false);
       
@@ -125,8 +165,8 @@ export const ToolPage = () => {
       formData.append("rotationAngle", rotationAngle);
     }
     if (toolId === "crop-image") {
-      formData.append("cropX", cropX);
-      formData.append("cropY", cropY);
+      formData.append("cropX", "0");
+      formData.append("cropY", "0");
       formData.append("cropWidth", cropWidth);
       formData.append("cropHeight", cropHeight);
     }
@@ -155,6 +195,76 @@ export const ToolPage = () => {
       const downloadName = files.length === 1 
         ? `converted-${files[0].name.split(".")[0]}.${targetFormat || files[0].name.split(".").pop()}`
         : `convertly-bulk-${Date.now()}.zip`;
+      a.download = downloadName;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      setProgress(100);
+      setIsComplete(true);
+      setFiles([]);
+      setPreviewUrl(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleConvertSingle = async (index: number) => {
+    const file = files[index];
+    if (!file) return;
+
+    setIsUploading(true);
+    setProgress(10);
+    setError(null);
+
+    const formData = new FormData();
+    formData.append("files", file);
+    formData.append("targetFormat", targetFormat);
+    formData.append("toolId", toolId || "");
+
+    if (toolId === "resize-image") {
+      formData.append("width", resizeWidth);
+      formData.append("height", resizeHeight);
+    }
+    if (toolId === "compress-image" || toolId?.includes("-to-") || toolId === "resize-image" || toolId === "rotate-image") {
+      formData.append("quality", quality.toString());
+    }
+    if (toolId === "rotate-image") {
+      formData.append("rotationAngle", rotationAngle);
+    }
+    if (toolId === "crop-image") {
+      formData.append("cropX", "0");
+      formData.append("cropY", "0");
+      formData.append("cropWidth", cropWidth);
+      formData.append("cropHeight", cropHeight);
+    }
+
+    const endpoint = toolId?.includes("video") || toolId?.includes("extract-audio")
+      ? "/api/convert/video"
+      : "/api/convert/image";
+
+    try {
+      setProgress(30);
+      const response = await fetch(endpoint, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to convert file. Please try again.");
+      }
+
+      setProgress(80);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const ext = file.name.split(".").pop();
+      const downloadName = `converted-${file.name.split(".")[0]}.${targetFormat || ext}`;
       a.download = downloadName;
       document.body.appendChild(a);
       a.click();
@@ -212,7 +322,7 @@ export const ToolPage = () => {
               <p className="text-xl font-bold text-zinc-900">Click or drag files to upload</p>
               <p className="text-sm text-zinc-500 mt-1">Up to 10 files • Max 50MB per file</p>
             </div>
-            <input type="file" className="hidden" multiple onChange={onFileChange} accept={getAcceptType()} />
+            <input type="file" className="hidden" {...(isSingleFileTool ? {} : { multiple: true })} onChange={onFileChange} accept={getAcceptType()} />
           </label>
         ) : (
           <div className="flex flex-col gap-6">
@@ -235,18 +345,28 @@ export const ToolPage = () => {
                         <span className="text-xs text-zinc-500">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
                       </div>
                     </div>
-                    <button 
-                      onClick={() => removeFile(idx)}
-                      className="rounded-full p-2 text-zinc-400 hover:bg-zinc-100 hover:text-red-600 transition-colors"
-                    >
-                      <X className="h-5 w-5" />
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleConvertSingle(idx)}
+                        disabled={isUploading}
+                        className="rounded-full border border-zinc-200 px-3 py-1 text-xs font-semibold text-zinc-700 hover:bg-zinc-100 transition-colors disabled:opacity-50"
+                      >
+                        <Download className="h-4 w-4 inline-block mr-1" />
+                        Download
+                      </button>
+                      <button 
+                        onClick={() => removeFile(idx)}
+                        className="rounded-full p-2 text-zinc-400 hover:bg-zinc-100 hover:text-red-600 transition-colors"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    </div>
                   </motion.div>
                 ))}
               </AnimatePresence>
             </div>
 
-            {files.length < 10 && (
+{!isSingleFileTool && files.length < 10 && (
               <label className="flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-zinc-200 p-4 cursor-pointer hover:bg-white hover:border-orange-600/30 transition-all">
                 <Files className="h-5 w-5 text-zinc-400" />
                 <span className="text-sm font-bold text-zinc-600">Add more files ({files.length}/10)</span>
@@ -405,6 +525,8 @@ export const ToolPage = () => {
                           <button
                             key={preset.label}
                             onClick={() => {
+                              setCropX("0");
+                              setCropY("0");
                               setCropWidth(preset.w);
                               setCropHeight(preset.h);
                             }}
@@ -415,26 +537,7 @@ export const ToolPage = () => {
                         ))}
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <label className="text-sm font-bold text-zinc-900 ml-2">X Offset (px)</label>
-                        <input 
-                          type="number" 
-                          value={cropX}
-                          onChange={(e) => setCropX(e.target.value)}
-                          className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-medium focus:border-orange-600 focus:outline-none transition-all shadow-sm"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-bold text-zinc-900 ml-2">Y Offset (px)</label>
-                        <input 
-                          type="number" 
-                          value={cropY}
-                          onChange={(e) => setCropY(e.target.value)}
-                          className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-medium focus:border-orange-600 focus:outline-none transition-all shadow-sm"
-                        />
-                      </div>
-                    </div>
+                    <div className="text-sm text-zinc-500 mb-2">Offset controls are removed; crop starts at origin (0,0) to keep basic crop behavior as requested.</div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label className="text-sm font-bold text-zinc-900 ml-2">Crop Width (px)</label>
