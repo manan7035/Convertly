@@ -25,13 +25,13 @@ const upload = multer({
 });
 
 // ❤️ Health check route
-app.get("/hello", (req, res) => {
+app.get("/api/hello", (req, res) => {
   res.json({ message: "Convertly API working 🚀" });
 });
 
 
 // ⭐ IMAGE CONVERSION ROUTE
-app.post("/convert/image", upload.array("files", 10), async (req, res) => {
+app.post("/api/convert/image", upload.array("files", 10), async (req, res) => {
   try {
     const files = req.files as Express.Multer.File[];
     if (!files || files.length === 0) {
@@ -98,7 +98,7 @@ app.post("/convert/image", upload.array("files", 10), async (req, res) => {
 
 
 // ⭐ Fake plan upgrade (for demo)
-app.post("/plan/upgrade", (req, res) => {
+app.post("/api/plan/upgrade", (req, res) => {
   const { planType } = req.body;
   res.json({
     success: true,

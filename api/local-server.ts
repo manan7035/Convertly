@@ -4,7 +4,7 @@ import apiApp from "./index";
 const app = express();
 const PORT = 3000;
 
-app.use('/api', apiApp);
+app.use('/', apiApp);
 
 app.listen(PORT, () => {
   console.log("Local server running on http://localhost:3000");
