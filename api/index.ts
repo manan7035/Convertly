@@ -6,7 +6,6 @@ import { v4 as uuidv4 } from "uuid";
 import sharp from "sharp";
 import cors from "cors";
 import archiver from "archiver";
-import serverless from "serverless-http";
 
 const app = express();
 
@@ -108,5 +107,4 @@ app.post("/plan/upgrade", (req, res) => {
 });
 
 // ⭐ IMPORTANT for Vercel
-export { app };
-export default serverless(app, { basePath: '/api' });
+export default app;
