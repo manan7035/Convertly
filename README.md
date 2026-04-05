@@ -47,3 +47,4 @@ To go live for free, use **Render.com** or **Railway.app**:
 1. **Google AdSense**: Replace the `Ad Space` placeholders in `HomePage.tsx` and `ToolPage.tsx` with your AdSense code.
 2. **Custom Domain**: For better AdSense approval, consider buying a `.com` domain from Namecheap or Google Domains.
 3. **Ezoic**: A great alternative to AdSense that often pays higher for utility websites.
+
