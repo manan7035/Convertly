@@ -10,9 +10,9 @@ import archiver from "archiver";
 const app = express();
 
 // Temp folder setup
-const TEMP_DIR = path.join(process.cwd(), "temp");
+const TEMP_DIR = path.join(process.env.VERCEL ? '/tmp' : process.cwd(), "temp");
 if (!fs.existsSync(TEMP_DIR)) {
-  fs.mkdirSync(TEMP_DIR);
+  fs.mkdirSync(TEMP_DIR, { recursive: true });
 }
 
 app.use(cors());
