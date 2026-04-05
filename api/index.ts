@@ -9,7 +9,7 @@ import archiver from "archiver";
 
 const app = express();
 
-// Temp folder setup
+// Temp folder setup - Vercel allows /tmp, local uses process.cwd()/temp
 const TEMP_DIR = path.join(process.env.VERCEL ? '/tmp' : process.cwd(), "temp");
 if (!fs.existsSync(TEMP_DIR)) {
   fs.mkdirSync(TEMP_DIR, { recursive: true });
@@ -18,28 +18,27 @@ if (!fs.existsSync(TEMP_DIR)) {
 app.use(cors());
 app.use(express.json());
 
-// Upload setup (memory for Vercel)
+// Upload setup (memory for Vercel/Serverless)
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 20 * 1024 * 1024 } // 20MB safe for Vercel
+  limits: { fileSize: 50 * 1024 * 1024 } // 50MB limit for this environment
 });
 
-// ❤️ Health check route
+// Health check route
 app.get("/api/hello", (req, res) => {
   res.json({ message: "Convertly API working 🚀" });
 });
 
-
-// ⭐ IMAGE CONVERSION ROUTE
+// IMAGE CONVERSION ROUTE
 app.post("/api/convert/image", upload.array("files", 10), async (req, res) => {
   try {
-    const files = req.files as Express.Multer.File[];
+    const files = req.files;
     if (!files || files.length === 0) {
       return res.status(400).json({ error: "No files uploaded" });
     }
 
     const { targetFormat, width, height, quality } = req.body;
-    const convertedFiles: { path: string; name: string }[] = [];
+    const convertedFiles = [];
 
     for (const file of files) {
       const format = (targetFormat || "webp").toLowerCase();
@@ -73,7 +72,12 @@ app.post("/api/convert/image", upload.array("files", 10), async (req, res) => {
     // Single file download
     if (convertedFiles.length === 1) {
       const file = convertedFiles[0];
-      return res.download(file.path, file.name);
+      return res.download(file.path, file.name, (err) => {
+        if (!err) {
+          // Cleanup
+          fs.unlinkSync(file.path);
+        }
+      });
     }
 
     // Multiple → ZIP
@@ -82,12 +86,22 @@ app.post("/api/convert/image", upload.array("files", 10), async (req, res) => {
     const output = fs.createWriteStream(zipPath);
     const archive = archiver("zip");
 
-    archive.pipe(output);
-    convertedFiles.forEach(f => archive.file(f.path, { name: f.name }));
-    await archive.finalize();
+    return new Promise((resolve, reject) => {
+      output.on("close", () => {
+        res.download(zipPath, zipName, (err) => {
+          if (!err) {
+            // Cleanup files and zip
+            convertedFiles.forEach(f => fs.unlinkSync(f.path));
+            fs.unlinkSync(zipPath);
+          }
+        });
+        resolve();
+      });
 
-    output.on("close", () => {
-      res.download(zipPath, zipName);
+      archive.on("error", (err) => reject(err));
+      archive.pipe(output);
+      convertedFiles.forEach(f => archive.file(f.path, { name: f.name }));
+      archive.finalize();
     });
 
   } catch (err) {
@@ -96,8 +110,7 @@ app.post("/api/convert/image", upload.array("files", 10), async (req, res) => {
   }
 });
 
-
-// ⭐ Fake plan upgrade (for demo)
+// Fake plan upgrade (for demo)
 app.post("/api/plan/upgrade", (req, res) => {
   const { planType } = req.body;
   res.json({
@@ -106,5 +119,4 @@ app.post("/api/plan/upgrade", (req, res) => {
   });
 });
 
-// ⭐ IMPORTANT for Vercel
 export default app;
