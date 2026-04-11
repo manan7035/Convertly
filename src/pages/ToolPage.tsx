@@ -11,9 +11,228 @@ import {
   Loader2, 
   Download,
   ArrowLeft,
-  Files
+  Files,
+  Shield,
+  Zap,
+  Globe
 } from "lucide-react";
 import { convertImageClientSide, isImageTool, getOutputExtension } from "../utils/clientConvert";
+
+const toolDescriptions: Record<string, {
+  about: string;
+  howTo: string[];
+  whyUse: string;
+  formats: string;
+  faqs: { q: string; a: string }[];
+}> = {
+  "png-to-webp": {
+    about: "Convert PNG images to WebP format and reduce file size by up to 80% with no visible quality loss. WebP is the modern image format recommended by Google for faster-loading websites and better SEO scores. Our converter runs entirely in your browser — your files are never uploaded to any server.",
+    howTo: [
+      "Click the upload area or drag and drop your PNG files — up to 10 files at once",
+      "Adjust the quality slider (80% is recommended for the best balance of size and clarity)",
+      "Click 'Convert Files' and your WebP images download automatically"
+    ],
+    whyUse: "WebP images load 2–3× faster than PNG on websites, directly improving your Google PageSpeed score, Core Web Vitals, and user experience. Switching to WebP is one of the easiest wins for web performance.",
+    formats: "Input: .png — Output: .webp",
+    faqs: [
+      { q: "Is PNG to WebP conversion lossless?", a: "WebP supports both lossy and lossless modes. At 100% quality the output is visually lossless. At 80% (our default) the difference is invisible to the human eye while the file is significantly smaller." },
+      { q: "Will my PNG transparency be preserved?", a: "Yes. WebP fully supports transparency (alpha channel), so any transparent areas in your PNG will be preserved perfectly in the WebP output." },
+      { q: "How much smaller will my files be?", a: "Typically 25–80% smaller depending on the image content. Photographs compress more than screenshots or illustrations." },
+      { q: "Do my files get uploaded to your server?", a: "No. This tool runs entirely in your browser using the Canvas API. Your images never leave your device." }
+    ]
+  },
+  "jpg-to-webp": {
+    about: "Convert JPG and JPEG photos to WebP format for significantly smaller file sizes without any perceptible quality loss. Perfect for web developers, bloggers, and e-commerce store owners who want faster-loading product images. The entire conversion happens locally in your browser.",
+    howTo: [
+      "Upload one or more JPG or JPEG files — bulk convert up to 10 images at once",
+      "Set your preferred quality level using the slider",
+      "Click Convert and download your smaller, faster WebP images"
+    ],
+    whyUse: "JPG to WebP conversion typically reduces file size by 25–35% at equivalent visual quality. For a page with 10 product images, that could mean saving several megabytes of bandwidth per visitor — resulting in faster load times and lower hosting costs.",
+    formats: "Input: .jpg, .jpeg — Output: .webp",
+    faqs: [
+      { q: "What quality setting should I use?", a: "80% is the sweet spot for most use cases — near-identical to the original JPG with 30–40% smaller file size. Use 90%+ for professional photography where quality is critical." },
+      { q: "Can I convert multiple JPGs at once?", a: "Yes, upload up to 10 JPG files at once and they will all be converted and downloaded individually." },
+      { q: "Do browsers support WebP?", a: "Yes. WebP is supported by all modern browsers including Chrome, Firefox, Safari (since 2020), and Edge. Over 95% of global users can view WebP images." },
+      { q: "Is there a file size limit?", a: "The free plan supports files up to 50MB each. In practice, most JPG photos are well under this limit." }
+    ]
+  },
+  "webp-to-png": {
+    about: "Convert WebP images back to standard PNG format for maximum compatibility. While WebP is excellent for the web, PNG is still required for many design tools like Photoshop, Figma, Canva, social media platforms, and older software that does not yet support WebP. Convert instantly in your browser with no quality loss.",
+    howTo: [
+      "Upload your WebP image files (up to 10 at once)",
+      "No settings needed — PNG conversion is always lossless",
+      "Click Convert and download your PNG files, ready for any application"
+    ],
+    whyUse: "PNG is the universally accepted image format supported across every platform, operating system, design tool, and content management system. When you need guaranteed compatibility — for client deliverables, social media, or legacy software — PNG is the safe choice.",
+    formats: "Input: .webp — Output: .png",
+    faqs: [
+      { q: "Will there be any quality loss converting WebP to PNG?", a: "No. PNG uses lossless compression, so the conversion from WebP to PNG preserves every pixel of the original image with zero quality degradation." },
+      { q: "Why would I convert WebP to PNG?", a: "Common reasons include: editing in Photoshop or Figma (which may not handle WebP), uploading to platforms that only accept PNG/JPG, sharing with clients who need standard formats, or archiving images." },
+      { q: "Will transparency be preserved?", a: "Yes. Both WebP and PNG support transparency. Any transparent areas in your WebP image will be retained in the PNG output." },
+      { q: "How long does the conversion take?", a: "Instantly — the conversion happens in your browser in milliseconds. Even large images typically convert in under a second." }
+    ]
+  },
+  "compress-image": {
+    about: "Reduce image file sizes by 50–80% without any visible quality loss using smart browser-based compression. Supports PNG, JPG, JPEG, and WebP formats. Ideal for optimizing images before uploading to websites, WordPress, Shopify, email newsletters, or social media to improve loading speed.",
+    howTo: [
+      "Upload up to 10 images at once — PNG, JPG, or WebP are all supported",
+      "Use the quality slider to control compression — 70–80% gives the best balance",
+      "Download your compressed images; each file shows the new smaller size"
+    ],
+    whyUse: "Unoptimized images are the single biggest cause of slow websites. Smaller images mean faster page loads, lower bandwidth costs, better Google PageSpeed scores, and improved SEO rankings. Most images can be compressed by 50–70% with no visible difference whatsoever.",
+    formats: "Input: .png, .jpg, .jpeg, .webp — Output: same format",
+    faqs: [
+      { q: "How much can I reduce my image file size?", a: "It depends on the image and quality setting. At 80% quality, most photos compress by 40–60%. Screenshots and graphics with flat colors may compress even more." },
+      { q: "Which quality setting should I choose?", a: "For websites and blogs: 75–80%. For social media: 80–85%. For email: 70%. For print or professional use: 90%+." },
+      { q: "Does compression affect image dimensions?", a: "No. Compression only reduces the file size — the width, height, and resolution of your image remain exactly the same." },
+      { q: "What formats are supported?", a: "PNG, JPG, JPEG, and WebP. All four formats can be uploaded and compressed in a single batch." }
+    ]
+  },
+  "resize-image": {
+    about: "Resize images to any custom pixel dimensions instantly in your browser with no server upload required. Set a specific width, height, or both — Convertly automatically maintains aspect ratio when only one dimension is specified. Supports bulk resizing of up to 10 images at once.",
+    howTo: [
+      "Upload your images — PNG, JPG, or WebP",
+      "Enter your target width and/or height in pixels",
+      "Leave one dimension empty to auto-scale and preserve the original aspect ratio",
+      "Click Convert and download your perfectly resized images"
+    ],
+    whyUse: "Every platform has specific image size requirements: WordPress featured images, Shopify product photos, Twitter header images, LinkedIn banners, YouTube thumbnails. Resizing to the exact required dimensions ensures your images look sharp and load fast on every platform.",
+    formats: "Input: .png, .jpg, .webp — Output: any pixel dimensions",
+    faqs: [
+      { q: "Will resizing maintain my image's aspect ratio?", a: "If you enter only a width or only a height, the other dimension is calculated automatically to maintain the original aspect ratio. Enter both to force exact dimensions." },
+      { q: "Can I make an image larger (upscale)?", a: "Yes, but upscaling beyond the original resolution will result in a blurry image since there is no new pixel data to add. For upscaling, a dedicated AI upscaler tool is recommended." },
+      { q: "What is the maximum output resolution?", a: "There is no hard limit — you can resize to any dimensions. However, very large outputs may take a few seconds to process in the browser." },
+      { q: "Can I resize multiple images to the same dimensions?", a: "Yes. Upload up to 10 images and set your dimensions once — all images will be resized to those same dimensions in one click." }
+    ]
+  },
+  "rotate-image": {
+    about: "Rotate images 90°, 180°, or 270° clockwise instantly in your browser. Fix incorrectly oriented photos taken on a phone or camera, prepare images for printing in the correct orientation, or adjust image rotation for any platform or publication. Supports bulk rotation of up to 10 images at once.",
+    howTo: [
+      "Upload your images — PNG, JPG, or WebP (up to 10 files at once)",
+      "Select the rotation angle: 90°, 180°, or 270° clockwise",
+      "Click Convert and download your correctly oriented images"
+    ],
+    whyUse: "Smartphones and cameras sometimes save photos with incorrect orientation metadata, causing them to appear sideways or upside down on other devices and platforms. Rotating and re-saving the image fixes the orientation permanently regardless of the viewer application.",
+    formats: "Input: .png, .jpg, .webp — Output: .png, .jpg, or .webp",
+    faqs: [
+      { q: "Why do my phone photos appear sideways?", a: "Phones save orientation as metadata (EXIF data) rather than rotating the actual pixels. Some applications ignore this metadata and display the image in its raw orientation. Rotating and re-saving bakes the correct orientation into the pixels themselves." },
+      { q: "Will rotating reduce image quality?", a: "No. Rotation is a lossless operation — the pixels are rearranged geometrically without any recompression at the rotation step itself." },
+      { q: "Can I rotate counterclockwise?", a: "Yes — rotating 270° clockwise is equivalent to rotating 90° counterclockwise." },
+      { q: "Is there a limit on how many images I can rotate at once?", a: "You can rotate up to 10 images in a single batch, all at the same angle." }
+    ]
+  },
+  "png-to-jpg": {
+    about: "Convert PNG images to JPG format to dramatically reduce file size. JPG is the ideal format for photographs, social media images, and any image where a transparent background is not required. The conversion runs entirely in your browser — no files are uploaded to any server.",
+    howTo: [
+      "Upload your PNG files — up to 10 at once",
+      "Adjust the quality slider to balance file size and image clarity",
+      "Click Convert and download your smaller JPG files"
+    ],
+    whyUse: "JPG files are typically 5–10× smaller than PNG files for photographic content. If your PNG images do not have transparent backgrounds, converting to JPG can dramatically reduce file sizes and speed up your website or reduce email attachment sizes.",
+    formats: "Input: .png — Output: .jpg",
+    faqs: [
+      { q: "Will I lose transparency when converting PNG to JPG?", a: "Yes. JPG does not support transparency. Any transparent areas in your PNG will be filled with a white background in the JPG output. If transparency is important, keep the PNG format." },
+      { q: "How much smaller will my JPG be compared to PNG?", a: "For photographs: 5–10× smaller. For graphics, logos, and screenshots with flat colors, the reduction is less significant." },
+      { q: "What quality should I choose?", a: "80% is recommended for web use — visually identical to the original at a fraction of the size. Use 90%+ for professional photography." },
+      { q: "Can I convert PNG to JPG in bulk?", a: "Yes — upload up to 10 PNG files at once and they all convert and download in seconds." }
+    ]
+  },
+  "jpg-to-png": {
+    about: "Convert JPG images to PNG format for lossless quality and full transparency support. PNG is the professional standard for logos, graphics, screenshots, and any image that requires a crisp, pixel-perfect result. Convert instantly in your browser with zero quality loss.",
+    howTo: [
+      "Upload your JPG or JPEG files — up to 10 at once",
+      "No quality settings needed — PNG conversion is always lossless",
+      "Download your high-quality PNG files"
+    ],
+    whyUse: "PNG uses lossless compression, preserving every pixel of your original image without the compression artifacts that JPG introduces. Use PNG when you need the highest quality for design work, when editing images that will be re-saved multiple times, or when uploading to platforms that require PNG.",
+    formats: "Input: .jpg, .jpeg — Output: .png",
+    faqs: [
+      { q: "Will converting JPG to PNG improve quality?", a: "No — PNG preserves the existing quality of your JPG without adding artifacts, but it cannot recover quality that was already lost during JPG compression. The PNG will be a perfect copy of what your JPG looks like now." },
+      { q: "Why is the PNG file larger than the original JPG?", a: "PNG is a lossless format, so it stores more pixel data than a compressed JPG. The larger file size reflects the higher fidelity of the lossless format." },
+      { q: "When should I use PNG instead of JPG?", a: "Use PNG for logos, illustrations, screenshots, UI mockups, and images with text or sharp edges. Use JPG for photographs and social media where smaller file size matters more." },
+      { q: "Does JPG to PNG add a transparent background?", a: "No. JPG does not have transparency data, so the PNG output will have the same opaque background as the original JPG." }
+    ]
+  },
+  "crop-image": {
+    about: "Crop images to exact pixel dimensions directly in your browser. Choose from popular presets including 1:1 square for Instagram, 16:9 widescreen for YouTube and presentations, 4:3 classic for general use, or enter completely custom crop dimensions. Your files never leave your device.",
+    howTo: [
+      "Upload your image file",
+      "Select a quick preset (Square 1:1, Landscape 16:9, Portrait 9:16, Classic 4:3) or enter custom pixel dimensions",
+      "Click Convert and download your cropped image"
+    ],
+    whyUse: "Every social media platform, website, and publication has specific image dimension requirements. Instagram requires square images, YouTube thumbnails are 16:9, and LinkedIn profile photos must be square. Cropping to the exact required ratio ensures your images always look professional.",
+    formats: "Input: .png, .jpg, .webp — Output: cropped .png, .jpg, or .webp",
+    faqs: [
+      { q: "What does the crop start from?", a: "The crop starts from the top-left corner (0,0) of the image. Enter your desired output width and height and the tool will crop from that origin." },
+      { q: "What are the preset sizes?", a: "1:1 Square (500×500px) for Instagram and profile photos; 4:3 Classic (800×600px) for general use; 16:9 Wide (1280×720px) for YouTube, presentations, and desktop wallpapers; 9:16 Story (720×1280px) for Instagram and TikTok stories." },
+      { q: "Can I crop a larger area than the original image?", a: "No — the crop dimensions are automatically capped at the original image's width and height to prevent errors." },
+      { q: "Will cropping reduce image quality?", a: "No. Cropping is a lossless geometric operation. The pixels within the cropped area are unchanged." }
+    ]
+  },
+  "video-to-mp4": {
+    about: "Convert any video format to MP4 — the most universally compatible video format supported by every device, browser, and platform. MP4 with H.264 encoding plays on iPhones, Android phones, smart TVs, Windows, macOS, and every major social media platform.",
+    howTo: [
+      "Upload your video file (MOV, AVI, MKV, WebM, or any common format)",
+      "Click Convert to MP4",
+      "Download your MP4 file ready for any platform"
+    ],
+    whyUse: "MP4 is the universal video format. Whether you are sharing on YouTube, Instagram, WhatsApp, or just want a file that plays on any device without installing codecs, MP4 is the answer. It offers excellent quality at small file sizes.",
+    formats: "Input: .mov, .avi, .mkv, .webm, .flv — Output: .mp4",
+    faqs: [
+      { q: "What video formats can be converted to MP4?", a: "Most common video formats are supported including MOV, AVI, MKV, WebM, FLV, WMV, and more." },
+      { q: "Will the video quality change?", a: "The video is re-encoded to H.264/MP4, which is highly efficient. The output quality is very close to the original." },
+      { q: "Is there a file size limit?", a: "Free plan supports up to 50MB per file." },
+      { q: "Why is MP4 the best format?", a: "MP4 (H.264) is supported natively by every modern device, browser, and platform — no plugins or additional software required." }
+    ]
+  },
+  "extract-audio": {
+    about: "Extract the audio track from any video file and save it as a high-quality MP3. Perfect for saving podcast recordings, extracting background music, creating audio clips from interviews, or converting video lessons to audio for listening on the go.",
+    howTo: [
+      "Upload your video file",
+      "Click Extract Audio",
+      "Download your MP3 audio file"
+    ],
+    whyUse: "Extracting audio from video is useful for dozens of workflows: creating podcast episodes from video interviews, saving background music from clips, making audio versions of video tutorials for commuting, or archiving audio from recordings.",
+    formats: "Input: .mp4, .mov, .avi, .mkv — Output: .mp3",
+    faqs: [
+      { q: "What quality will the extracted MP3 be?", a: "The audio is extracted at 192kbps MP3 quality, which is excellent for voice, podcasts, and most music." },
+      { q: "Can I extract audio from any video format?", a: "Yes — MP4, MOV, AVI, MKV, WebM and most common video formats are supported." },
+      { q: "Is there a file size limit?", a: "Free plan supports video files up to 50MB." },
+      { q: "Will the audio be perfectly synced?", a: "Audio extraction preserves the original audio track exactly as it appears in the video." }
+    ]
+  },
+};
+
+declare global {
+  interface Window {
+    adsbygoogle: unknown[];
+  }
+}
+
+const AdSlot = ({ slot }: { slot: string }) => {
+  const ref = React.useRef<HTMLModElement>(null);
+  React.useEffect(() => {
+    try {
+      if (ref.current && ref.current.offsetWidth > 0) {
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      }
+    } catch {}
+  }, []);
+  return (
+    <div className="my-6 overflow-hidden rounded-2xl bg-zinc-50 border border-zinc-100 text-center min-h-[90px] flex items-center justify-center">
+      <ins
+        ref={ref}
+        className="adsbygoogle"
+        style={{ display: "block", width: "100%", minHeight: 90 }}
+        data-ad-client="ca-pub-5191988160324352"
+        data-ad-slot={slot}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      />
+    </div>
+  );
+};
 
 export const ToolPage = () => {
   const { toolId } = useParams();
@@ -34,18 +253,15 @@ export const ToolPage = () => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   React.useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
+    return () => { if (previewUrl) URL.revokeObjectURL(previewUrl); };
   }, [previewUrl]);
 
-  const toolName = toolId?.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+  const toolName = toolId?.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
   const isSingleFileTool = toolId === "video-to-mp4" || toolId === "extract-audio" || toolId === "crop-image";
-
-  // API URL for video tools only — image tools run in-browser
   const apiBaseUrl = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
   const buildEndpoint = (path: string) => apiBaseUrl ? `${apiBaseUrl}${path}` : path;
-  
+  const toolInfo = toolDescriptions[toolId || ""];
+
   const getTargetFormat = () => {
     if (toolId === "extract-audio") return "mp3";
     if (toolId === "video-to-mp4") return "mp4";
@@ -55,18 +271,15 @@ export const ToolPage = () => {
     if (toolId?.includes("-to-")) return toolId.split("-to-")[1];
     return "webp";
   };
-
   const targetFormat = getTargetFormat();
-  
+
   const getAcceptType = () => {
     if (toolId?.includes("video") || toolId === "extract-audio") return "video/*";
-    if (toolId?.includes("pdf") || toolId?.includes("jpg-to-pdf")) return "application/pdf,image/*";
     if (toolId?.includes("-to-")) {
       const source = toolId.split("-to-")[0];
       const sourceMap: Record<string, string> = {
         webp: ".webp", png: ".png", jpg: ".jpg,.jpeg",
-        jpeg: ".jpg,.jpeg", gif: ".gif", avif: ".avif",
-        tiff: ".tiff,.tif", heif: ".heif,.heic",
+        jpeg: ".jpg,.jpeg", gif: ".gif",
       };
       return sourceMap[source] || "image/*";
     }
@@ -77,186 +290,94 @@ export const ToolPage = () => {
     if (e.target.files) {
       const chosen = Array.from(e.target.files);
       const newFiles = isSingleFileTool ? chosen.slice(0, 1) : chosen.slice(0, 10);
-
-      const uniqueFileId = (file: File) => `${file.name}-${file.size}-${file.lastModified}-${file.type}`;
+      const uniqueFileId = (f: File) => `${f.name}-${f.size}-${f.lastModified}`;
       const existingIds = new Set(files.map(uniqueFileId));
-      const filteredNewFiles = newFiles.filter((file) => {
-        const id = uniqueFileId(file);
+      const filtered = newFiles.filter(f => {
+        const id = uniqueFileId(f);
         if (existingIds.has(id)) return false;
         existingIds.add(id);
         return true;
       });
-
-      if (filteredNewFiles.length === 0) {
-        setError("This file is already in the upload queue.");
-        e.target.value = "";
-        return;
-      }
-
-      setFiles((prev) => {
-        const combined = isSingleFileTool ? filteredNewFiles.slice(0, 1) : [...prev, ...filteredNewFiles];
-        return isSingleFileTool ? combined : combined.slice(0, 10);
-      });
-      setError(null);
-      setIsComplete(false);
-
-      const firstFile = filteredNewFiles.find((file) => file.type.startsWith("image/"));
-      if (firstFile) {
-        const url = URL.createObjectURL(firstFile);
-        setPreviewUrl(url);
-      }
+      if (filtered.length === 0) { setError("File already in queue."); e.target.value = ""; return; }
+      setFiles(prev => isSingleFileTool ? filtered.slice(0, 1) : [...prev, ...filtered].slice(0, 10));
+      setError(null); setIsComplete(false);
+      const firstImg = filtered.find(f => f.type.startsWith("image/"));
+      if (firstImg) setPreviewUrl(URL.createObjectURL(firstImg));
       e.target.value = "";
     }
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    if (e.dataTransfer.files) {
-      const chosen = Array.from(e.dataTransfer.files);
-      const newFiles = isSingleFileTool ? chosen.slice(0, 1) : chosen.slice(0, 10);
-      setFiles(prev => {
-        const combined = isSingleFileTool ? newFiles : [...prev, ...newFiles];
-        return isSingleFileTool ? combined : combined.slice(0, 10);
-      });
-      setError(null);
-      setIsComplete(false);
-      const firstFile = newFiles[0];
-      if (firstFile && firstFile.type.startsWith("image/")) {
-        const url = URL.createObjectURL(firstFile);
-        setPreviewUrl(url);
-      }
-    }
+    const chosen = Array.from(e.dataTransfer.files);
+    const newFiles = isSingleFileTool ? chosen.slice(0, 1) : chosen.slice(0, 10);
+    setFiles(prev => isSingleFileTool ? newFiles : [...prev, ...newFiles].slice(0, 10));
+    setError(null); setIsComplete(false);
+    const first = newFiles[0];
+    if (first?.type.startsWith("image/")) setPreviewUrl(URL.createObjectURL(first));
   };
 
-  const removeFile = (index: number) => {
-    setFiles(prev => prev.filter((_, i) => i !== index));
-    if (index === 0) setPreviewUrl(null);
+  const removeFile = (i: number) => {
+    setFiles(prev => prev.filter((_, idx) => idx !== i));
+    if (i === 0) setPreviewUrl(null);
   };
 
-  // ─── CLIENT-SIDE image conversion (no server needed) ───────────────────────
   const handleConvertImages = async () => {
-    if (files.length === 0) return;
-    setIsUploading(true);
-    setProgress(10);
-    setError(null);
-
+    if (!files.length) return;
+    setIsUploading(true); setProgress(10); setError(null);
     try {
-      const options = {
-        targetFormat,
-        quality,
-        width: resizeWidth,
-        height: resizeHeight,
-        rotationAngle,
-        cropWidth,
-        cropHeight,
-      };
-
+      const options = { targetFormat, quality, width: resizeWidth, height: resizeHeight, rotationAngle, cropWidth, cropHeight };
       const results: { blob: Blob; name: string }[] = [];
-
       for (let i = 0; i < files.length; i++) {
-        const file = files[i];
         setProgress(Math.round(10 + (70 * i) / files.length));
-        const blob = await convertImageClientSide(file, toolId || "", options);
-        const ext = getOutputExtension(toolId || "", targetFormat, file);
-        results.push({ blob, name: `converted-${file.name.split(".")[0]}.${ext}` });
+        const blob = await convertImageClientSide(files[i], toolId || "", options);
+        const ext = getOutputExtension(toolId || "", targetFormat, files[i]);
+        results.push({ blob, name: `converted-${files[i].name.split(".")[0]}.${ext}` });
       }
-
       setProgress(90);
-
-      if (results.length === 1) {
-        // Single file download
-        const url = URL.createObjectURL(results[0].blob);
+      for (const r of results) {
+        const url = URL.createObjectURL(r.blob);
         const a = document.createElement("a");
-        a.href = url;
-        a.download = results[0].name;
-        document.body.appendChild(a);
-        a.click();
-        URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      } else {
-        // Multiple files — download each individually (no server needed for zip)
-        for (const result of results) {
-          const url = URL.createObjectURL(result.blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = result.name;
-          document.body.appendChild(a);
-          a.click();
-          URL.revokeObjectURL(url);
-          document.body.removeChild(a);
-          // Small delay between downloads to avoid browser blocking
-          await new Promise(r => setTimeout(r, 200));
-        }
+        a.href = url; a.download = r.name;
+        document.body.appendChild(a); a.click();
+        URL.revokeObjectURL(url); document.body.removeChild(a);
+        await new Promise(res => setTimeout(res, 200));
       }
-
-      setProgress(100);
-      setIsComplete(true);
-      setFiles([]);
-      setPreviewUrl(null);
+      setProgress(100); setIsComplete(true); setFiles([]); setPreviewUrl(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Conversion failed. Please try again.");
-    } finally {
-      setIsUploading(false);
-    }
+    } finally { setIsUploading(false); }
   };
 
-  // ─── SERVER-SIDE video conversion ──────────────────────────────────────────
   const handleConvertVideo = async () => {
-    if (files.length === 0) return;
-    setIsUploading(true);
-    setProgress(10);
-    setError(null);
-
+    if (!files.length) return;
+    setIsUploading(true); setProgress(10); setError(null);
     const formData = new FormData();
-    files.forEach(file => formData.append("files", file));
+    files.forEach(f => formData.append("files", f));
     formData.append("targetFormat", targetFormat);
     formData.append("toolId", toolId || "");
-
-    const endpoint = buildEndpoint("/api/convert/video");
-
     try {
       setProgress(30);
-      const response = await fetch(endpoint, { method: "POST", body: formData });
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || "Video conversion failed. Please try again.");
-      }
+      const response = await fetch(buildEndpoint("/api/convert/video"), { method: "POST", body: formData });
+      if (!response.ok) { const e = await response.json().catch(() => ({})); throw new Error(e.error || "Video conversion failed."); }
       setProgress(80);
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = url;
-      a.download = `converted-${files[0].name.split(".")[0]}.${targetFormat}`;
-      document.body.appendChild(a);
-      a.click();
-      URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      setProgress(100);
-      setIsComplete(true);
-      setFiles([]);
+      a.href = url; a.download = `converted-${files[0].name.split(".")[0]}.${targetFormat}`;
+      document.body.appendChild(a); a.click(); URL.revokeObjectURL(url); document.body.removeChild(a);
+      setProgress(100); setIsComplete(true); setFiles([]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unexpected error occurred.");
-    } finally {
-      setIsUploading(false);
-    }
+    } finally { setIsUploading(false); }
   };
 
-  const handleConvert = () => {
-    if (isImageTool(toolId || "")) {
-      handleConvertImages();
-    } else {
-      handleConvertVideo();
-    }
-  };
+  const handleConvert = () => isImageTool(toolId || "") ? handleConvertImages() : handleConvertVideo();
 
-  // Single file convert (per-file download button)
   const handleConvertSingle = async (index: number) => {
     const file = files[index];
     if (!file) return;
-    setIsUploading(true);
-    setProgress(10);
-    setError(null);
-
+    setIsUploading(true); setProgress(10); setError(null);
     try {
       if (isImageTool(toolId || "")) {
         const options = { targetFormat, quality, width: resizeWidth, height: resizeHeight, rotationAngle, cropWidth, cropHeight };
@@ -266,38 +387,25 @@ export const ToolPage = () => {
         const ext = getOutputExtension(toolId || "", targetFormat, file);
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
-        a.href = url;
-        a.download = `converted-${file.name.split(".")[0]}.${ext}`;
-        document.body.appendChild(a);
-        a.click();
-        URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+        a.href = url; a.download = `converted-${file.name.split(".")[0]}.${ext}`;
+        document.body.appendChild(a); a.click(); URL.revokeObjectURL(url); document.body.removeChild(a);
       } else {
         const formData = new FormData();
-        formData.append("files", file);
-        formData.append("targetFormat", targetFormat);
-        formData.append("toolId", toolId || "");
+        formData.append("files", file); formData.append("targetFormat", targetFormat); formData.append("toolId", toolId || "");
         setProgress(30);
         const response = await fetch(buildEndpoint("/api/convert/video"), { method: "POST", body: formData });
-        if (!response.ok) throw new Error("Conversion failed. Please try again.");
+        if (!response.ok) throw new Error("Conversion failed.");
         setProgress(80);
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
-        a.href = url;
-        a.download = `converted-${file.name.split(".")[0]}.${targetFormat}`;
-        document.body.appendChild(a);
-        a.click();
-        URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+        a.href = url; a.download = `converted-${file.name.split(".")[0]}.${targetFormat}`;
+        document.body.appendChild(a); a.click(); URL.revokeObjectURL(url); document.body.removeChild(a);
       }
-      setProgress(100);
-      setIsComplete(true);
+      setProgress(100); setIsComplete(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An unexpected error occurred.");
-    } finally {
-      setIsUploading(false);
-    }
+      setError(err instanceof Error ? err.message : "An error occurred.");
+    } finally { setIsUploading(false); }
   };
 
   return (
@@ -306,48 +414,50 @@ export const ToolPage = () => {
         <ArrowLeft className="h-4 w-4" /> Back to Tools
       </Link>
 
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-12"
-      >
+      {/* Page Header */}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
         <h1 className="text-4xl font-extrabold tracking-tight text-zinc-900 sm:text-5xl">{toolName}</h1>
-        <p className="mt-4 text-lg text-zinc-600">
-          {isImageTool(toolId || "")
-            ? "Fast, secure, in-browser conversion — your files never leave your device."
-            : "Fast, secure, and high-quality video conversion."}
-        </p>
+        {toolInfo && (
+          <p className="mt-4 text-lg text-zinc-600 leading-relaxed max-w-2xl">
+            {toolInfo.about.split(".")[0]}.
+          </p>
+        )}
+        <div className="mt-4 flex flex-wrap gap-3">
+          {[
+            { icon: Shield, text: "Files never leave your device" },
+            { icon: Zap, text: "Instant browser conversion" },
+            { icon: Globe, text: "100% free, no account needed" },
+          ].map(({ icon: Icon, text }) => (
+            <span key={text} className="inline-flex items-center gap-1.5 rounded-full bg-zinc-100 px-3 py-1 text-xs font-bold text-zinc-600">
+              <Icon className="h-3 w-3 text-orange-600" /> {text}
+            </span>
+          ))}
+        </div>
       </motion.div>
 
+      {/* Ad slot above tool */}
+      {plan !== "Pro" && <AdSlot slot="1234567890" />}
+
+      {/* Upload Card */}
       <div className="rounded-3xl border-2 border-dashed border-zinc-200 bg-zinc-50 p-8 sm:p-12 transition-all hover:border-orange-600/50 shadow-sm">
-        {plan !== "Pro" && (
-          <div className="mb-8 rounded-xl bg-white border border-zinc-100 p-3 text-center">
-            <p className="text-[8px] font-black uppercase tracking-[0.2em] text-zinc-300 mb-1">Advertisement</p>
-            <div className="h-16 w-full flex items-center justify-center border border-dashed border-zinc-200 rounded-lg text-zinc-200 text-xs font-bold italic">
-              Ad Space
-            </div>
-          </div>
-        )}
         {files.length === 0 ? (
-          <label 
+          <label
             className="flex flex-col items-center justify-center gap-4 cursor-pointer py-12"
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
           >
-            <motion.div 
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white shadow-md ring-1 ring-zinc-200"
-            >
+            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+              className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white shadow-md ring-1 ring-zinc-200">
               <Upload className="h-10 w-10 text-orange-600" />
             </motion.div>
             <div className="text-center">
               <p className="text-xl font-bold text-zinc-900">Click or drag files to upload</p>
               <p className="text-sm text-zinc-500 mt-1">
                 {isImageTool(toolId || "")
-                  ? "Up to 10 files • Processed in your browser — 100% private"
-                  : "Single file • Max 50MB"}
+                  ? "Up to 10 files · Converted in your browser · 100% private"
+                  : "Single video file · Max 50MB"}
               </p>
+              {toolInfo && <p className="text-xs text-zinc-400 mt-1">{toolInfo.formats}</p>}
             </div>
             <input type="file" className="hidden" {...(isSingleFileTool ? {} : { multiple: true })} onChange={onFileChange} accept={getAcceptType()} />
           </label>
@@ -356,13 +466,9 @@ export const ToolPage = () => {
             <div className="max-h-[400px] overflow-y-auto pr-2 space-y-3">
               <AnimatePresence mode="popLayout">
                 {files.map((file, idx) => (
-                  <motion.div 
-                    key={`${file.name}-${idx}`}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    className="flex items-center justify-between rounded-2xl bg-white p-4 ring-1 ring-zinc-200 shadow-sm"
-                  >
+                  <motion.div key={`${file.name}-${idx}`}
+                    initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
+                    className="flex items-center justify-between rounded-2xl bg-white p-4 ring-1 ring-zinc-200 shadow-sm">
                     <div className="flex items-center gap-4">
                       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-600">
                         <FileIcon className="h-5 w-5" />
@@ -373,18 +479,12 @@ export const ToolPage = () => {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <button
-                        onClick={() => handleConvertSingle(idx)}
-                        disabled={isUploading}
-                        className="rounded-full border border-zinc-200 px-3 py-1 text-xs font-semibold text-zinc-700 hover:bg-zinc-100 transition-colors disabled:opacity-50"
-                      >
-                        <Download className="h-4 w-4 inline-block mr-1" />
-                        Download
+                      <button onClick={() => handleConvertSingle(idx)} disabled={isUploading}
+                        className="rounded-full border border-zinc-200 px-3 py-1 text-xs font-semibold text-zinc-700 hover:bg-zinc-100 transition-colors disabled:opacity-50">
+                        <Download className="h-4 w-4 inline-block mr-1" />Download
                       </button>
-                      <button 
-                        onClick={() => removeFile(idx)}
-                        className="rounded-full p-2 text-zinc-400 hover:bg-zinc-100 hover:text-red-600 transition-colors"
-                      >
+                      <button onClick={() => removeFile(idx)}
+                        className="rounded-full p-2 text-zinc-400 hover:bg-zinc-100 hover:text-red-600 transition-colors">
                         <X className="h-5 w-5" />
                       </button>
                     </div>
@@ -403,47 +503,32 @@ export const ToolPage = () => {
 
             <AnimatePresence>
               {isUploading && (
-                <motion.div 
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="space-y-2 pt-4 border-t border-zinc-200"
-                >
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
+                  className="space-y-2 pt-4 border-t border-zinc-200">
                   <div className="flex items-center justify-between text-sm font-semibold">
                     <span className="text-zinc-600">Processing {files.length} file{files.length > 1 ? "s" : ""}...</span>
                     <span className="text-orange-600">{progress}%</span>
                   </div>
                   <div className="h-2.5 w-full overflow-hidden rounded-full bg-zinc-200">
-                    <motion.div 
-                      className="h-full bg-orange-600"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${progress}%` }}
-                      transition={{ type: "spring", bounce: 0, duration: 0.5 }}
-                    />
+                    <motion.div className="h-full bg-orange-600" initial={{ width: 0 }} animate={{ width: `${progress}%` }}
+                      transition={{ type: "spring", bounce: 0, duration: 0.5 }} />
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
 
             {error && (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex items-center gap-3 rounded-2xl bg-red-50 p-4 text-sm font-semibold text-red-600 ring-1 ring-red-600/20"
-              >
-                <AlertCircle className="h-5 w-5" />
-                {error}
+              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+                className="flex items-center gap-3 rounded-2xl bg-red-50 p-4 text-sm font-semibold text-red-600 ring-1 ring-red-600/20">
+                <AlertCircle className="h-5 w-5" />{error}
               </motion.div>
             )}
 
             {isComplete && (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex items-center gap-3 rounded-2xl bg-green-50 p-4 text-sm font-semibold text-green-600 ring-1 ring-green-600/20"
-              >
+              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+                className="flex items-center gap-3 rounded-2xl bg-green-50 p-4 text-sm font-semibold text-green-600 ring-1 ring-green-600/20">
                 <CheckCircle2 className="h-5 w-5" />
-                Conversion successful! Your {files.length > 1 ? "files are" : "file is"} ready.
+                Conversion successful! Your {files.length > 1 ? "files are" : "file is"} downloading now.
               </motion.div>
             )}
 
@@ -455,15 +540,8 @@ export const ToolPage = () => {
                     <label className="text-sm font-bold text-zinc-900 ml-2">Output Format</label>
                     <div className="grid grid-cols-4 gap-2">
                       {["", "webp", "png", "jpg"].map((fmt) => (
-                        <button
-                          key={fmt}
-                          onClick={() => setTargetImageFormat(fmt)}
-                          className={`rounded-xl border py-2 text-xs font-bold transition-all ${
-                            targetImageFormat === fmt
-                              ? "border-orange-600 bg-orange-50 text-orange-600"
-                              : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300"
-                          }`}
-                        >
+                        <button key={fmt} onClick={() => setTargetImageFormat(fmt)}
+                          className={`rounded-xl border py-2 text-xs font-bold transition-all ${targetImageFormat === fmt ? "border-orange-600 bg-orange-50 text-orange-600" : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300"}`}>
                           {fmt === "" ? "Original" : fmt.toUpperCase()}
                         </button>
                       ))}
@@ -475,21 +553,13 @@ export const ToolPage = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-zinc-900 ml-2">Width (px)</label>
-                      <input 
-                        type="number" value={resizeWidth}
-                        onChange={(e) => setResizeWidth(e.target.value)}
-                        placeholder="Auto"
-                        className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-medium focus:border-orange-600 focus:outline-none transition-all shadow-sm"
-                      />
+                      <input type="number" value={resizeWidth} onChange={(e) => setResizeWidth(e.target.value)} placeholder="Auto"
+                        className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-medium focus:border-orange-600 focus:outline-none shadow-sm" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-zinc-900 ml-2">Height (px)</label>
-                      <input 
-                        type="number" value={resizeHeight}
-                        onChange={(e) => setResizeHeight(e.target.value)}
-                        placeholder="Auto"
-                        className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-medium focus:border-orange-600 focus:outline-none transition-all shadow-sm"
-                      />
+                      <input type="number" value={resizeHeight} onChange={(e) => setResizeHeight(e.target.value)} placeholder="Auto"
+                        className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-medium focus:border-orange-600 focus:outline-none shadow-sm" />
                     </div>
                   </div>
                 )}
@@ -499,15 +569,8 @@ export const ToolPage = () => {
                     <label className="text-sm font-bold text-zinc-900 ml-2">Rotation Angle</label>
                     <div className="grid grid-cols-3 gap-3">
                       {["90", "180", "270"].map((angle) => (
-                        <button
-                          key={angle}
-                          onClick={() => setRotationAngle(angle)}
-                          className={`rounded-2xl border py-3 text-sm font-bold transition-all ${
-                            rotationAngle === angle
-                              ? "border-orange-600 bg-orange-50 text-orange-600"
-                              : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300"
-                          }`}
-                        >
+                        <button key={angle} onClick={() => setRotationAngle(angle)}
+                          className={`rounded-2xl border py-3 text-sm font-bold transition-all ${rotationAngle === angle ? "border-orange-600 bg-orange-50 text-orange-600" : "border-zinc-200 bg-white text-zinc-600"}`}>
                           {angle}°
                         </button>
                       ))}
@@ -518,26 +581,18 @@ export const ToolPage = () => {
                 {toolId === "crop-image" && (
                   <div className="space-y-4">
                     {previewUrl && (
-                      <div className="relative mx-auto max-w-full overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100 p-2">
-                        <p className="text-[10px] font-bold text-zinc-400 uppercase mb-2 text-center">Crop Preview</p>
+                      <div className="mx-auto overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100 p-2">
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase mb-2 text-center">Preview</p>
                         <img src={previewUrl} alt="Preview" className="max-h-[300px] w-auto rounded-lg mx-auto" />
                       </div>
                     )}
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-zinc-900 ml-2">Quick Presets</label>
                       <div className="flex flex-wrap gap-2">
-                        {[
-                          { label: "1:1 Square", w: "500", h: "500" },
-                          { label: "4:3 Classic", w: "800", h: "600" },
-                          { label: "16:9 Wide", w: "1280", h: "720" },
-                          { label: "9:16 Story", w: "720", h: "1280" },
-                        ].map((preset) => (
-                          <button
-                            key={preset.label}
-                            onClick={() => { setCropWidth(preset.w); setCropHeight(preset.h); }}
-                            className="rounded-full bg-zinc-100 px-3 py-1 text-[10px] font-bold text-zinc-600 hover:bg-orange-100 hover:text-orange-600 transition-all"
-                          >
-                            {preset.label}
+                        {[{ label: "1:1 Square", w: "500", h: "500" }, { label: "4:3 Classic", w: "800", h: "600" }, { label: "16:9 Wide", w: "1280", h: "720" }, { label: "9:16 Story", w: "720", h: "1280" }].map((p) => (
+                          <button key={p.label} onClick={() => { setCropWidth(p.w); setCropHeight(p.h); }}
+                            className="rounded-full bg-zinc-100 px-3 py-1 text-[10px] font-bold text-zinc-600 hover:bg-orange-100 hover:text-orange-600 transition-all">
+                            {p.label}
                           </button>
                         ))}
                       </div>
@@ -546,12 +601,12 @@ export const ToolPage = () => {
                       <div className="space-y-2">
                         <label className="text-sm font-bold text-zinc-900 ml-2">Crop Width (px)</label>
                         <input type="number" value={cropWidth} onChange={(e) => setCropWidth(e.target.value)}
-                          className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-medium focus:border-orange-600 focus:outline-none transition-all shadow-sm" />
+                          className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-medium focus:border-orange-600 focus:outline-none shadow-sm" />
                       </div>
                       <div className="space-y-2">
                         <label className="text-sm font-bold text-zinc-900 ml-2">Crop Height (px)</label>
                         <input type="number" value={cropHeight} onChange={(e) => setCropHeight(e.target.value)}
-                          className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-medium focus:border-orange-600 focus:outline-none transition-all shadow-sm" />
+                          className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-medium focus:border-orange-600 focus:outline-none shadow-sm" />
                       </div>
                     </div>
                   </div>
@@ -565,8 +620,7 @@ export const ToolPage = () => {
                         {quality > 80 ? "Best Quality" : quality > 50 ? "Balanced" : "Smallest Size"}
                       </span>
                     </div>
-                    <input type="range" min="1" max="100" value={quality}
-                      onChange={(e) => setQuality(parseInt(e.target.value))}
+                    <input type="range" min="1" max="100" value={quality} onChange={(e) => setQuality(parseInt(e.target.value))}
                       className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-orange-600" />
                   </div>
                 )}
@@ -574,40 +628,120 @@ export const ToolPage = () => {
             )}
 
             <div className="flex gap-4 pt-4 border-t border-zinc-200">
-              <button
-                onClick={() => { setFiles([]); setPreviewUrl(null); setIsComplete(false); setError(null); }}
-                disabled={isUploading}
-                className="flex-1 rounded-full border border-zinc-200 py-4 text-lg font-bold text-zinc-600 transition-all hover:bg-white hover:text-zinc-900 disabled:opacity-50"
-              >
+              <button onClick={() => { setFiles([]); setPreviewUrl(null); setIsComplete(false); setError(null); }} disabled={isUploading}
+                className="flex-1 rounded-full border border-zinc-200 py-4 text-lg font-bold text-zinc-600 transition-all hover:bg-white hover:text-zinc-900 disabled:opacity-50">
                 Clear All
               </button>
-              <button
-                onClick={handleConvert}
-                disabled={isUploading}
-                className="flex-[2] flex items-center justify-center gap-2 rounded-full bg-orange-600 py-4 text-lg font-bold text-white shadow-lg shadow-orange-600/20 transition-all hover:bg-orange-700 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
-              >
-                {isUploading ? (
-                  <><Loader2 className="h-6 w-6 animate-spin" />Processing...</>
-                ) : isComplete ? (
-                  <><Download className="h-6 w-6" />Convert Again</>
-                ) : (
-                  <>Convert {files.length} {files.length === 1 ? "File" : "Files"}</>
-                )}
+              <button onClick={handleConvert} disabled={isUploading}
+                className="flex-[2] flex items-center justify-center gap-2 rounded-full bg-orange-600 py-4 text-lg font-bold text-white shadow-lg shadow-orange-600/20 transition-all hover:bg-orange-700 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50">
+                {isUploading ? <><Loader2 className="h-6 w-6 animate-spin" />Processing...</>
+                  : isComplete ? <><Download className="h-6 w-6" />Convert Again</>
+                  : <>Convert {files.length} {files.length === 1 ? "File" : "Files"}</>}
               </button>
             </div>
           </div>
         )}
       </div>
 
-      <div className="mt-24 grid grid-cols-1 gap-12 sm:grid-cols-3">
+      {/* Ad slot below tool */}
+      {plan !== "Pro" && <AdSlot slot="0987654321" />}
+
+      {/* SEO Content Section */}
+      {toolInfo && (
+        <div className="mt-16 space-y-10">
+
+          {/* About */}
+          <section>
+            <h2 className="text-2xl font-black text-zinc-900 mb-4">What is {toolName}?</h2>
+            <div className="rounded-3xl bg-zinc-50 border border-zinc-100 p-8">
+              <p className="text-zinc-600 leading-relaxed text-base font-medium">{toolInfo.about}</p>
+              <p className="mt-4 inline-block rounded-full bg-orange-50 px-4 py-1.5 text-xs font-bold text-orange-600 border border-orange-100">
+                {toolInfo.formats}
+              </p>
+            </div>
+          </section>
+
+          {/* How to use */}
+          <section>
+            <h2 className="text-2xl font-black text-zinc-900 mb-4">How to use {toolName}</h2>
+            <div className="rounded-3xl bg-white border border-zinc-100 p-8 shadow-sm">
+              <ol className="space-y-6">
+                {toolInfo.howTo.map((step, i) => (
+                  <li key={i} className="flex items-start gap-5">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-600 text-white text-sm font-black shadow-md shadow-orange-600/20">
+                      {i + 1}
+                    </span>
+                    <p className="text-zinc-600 font-medium pt-1.5 leading-relaxed">{step}</p>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </section>
+
+          {/* Why use */}
+          <section>
+            <h2 className="text-2xl font-black text-zinc-900 mb-4">Why use Convertly for {toolName}?</h2>
+            <div className="rounded-3xl bg-orange-50 border border-orange-100 p-8">
+              <p className="text-zinc-700 leading-relaxed font-medium mb-6">{toolInfo.whyUse}</p>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                  "100% free — no account or credit card required",
+                  "Files never leave your device — complete privacy",
+                  "Bulk convert up to 10 files at once",
+                  "No watermarks added to converted files",
+                  "Works on any device — mobile, tablet, or desktop",
+                  "No software to install — works in your browser"
+                ].map(point => (
+                  <li key={point} className="flex items-center gap-3 text-sm font-bold text-zinc-700">
+                    <span className="h-2 w-2 rounded-full bg-orange-600 shrink-0" />
+                    {point}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+
+          {/* Mid-content ad */}
+          {plan !== "Pro" && <AdSlot slot="1122334455" />}
+
+          {/* FAQ */}
+          <section>
+            <h2 className="text-2xl font-black text-zinc-900 mb-6">
+              Frequently Asked Questions about {toolName}
+            </h2>
+            <div className="space-y-4">
+              {toolInfo.faqs.map((faq, i) => (
+                <div key={i} className="rounded-2xl bg-white border border-zinc-100 p-6 shadow-sm">
+                  <h3 className="text-base font-black text-zinc-900 mb-2">{faq.q}</h3>
+                  <p className="text-zinc-600 font-medium leading-relaxed text-sm">{faq.a}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Privacy note */}
+          <section className="rounded-3xl bg-zinc-900 p-8 text-center">
+            <Shield className="h-10 w-10 text-orange-600 mx-auto mb-4" />
+            <h2 className="text-xl font-black text-white mb-3">Your Privacy is Guaranteed</h2>
+            <p className="text-zinc-400 font-medium leading-relaxed max-w-xl mx-auto text-sm">
+              Convertly processes all image conversions directly in your browser using the Canvas API.
+              Your files are <strong className="text-white">never uploaded to any server</strong>, never stored, 
+              and never shared. The conversion happens entirely on your own device — we never see your files.
+            </p>
+          </section>
+        </div>
+      )}
+
+      {/* How it works steps */}
+      <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-3">
         {[
-          { num: "1", title: "Upload Files", desc: "Select up to 10 images. PNG, JPG, WebP and more supported.", color: "bg-orange-50 text-orange-600" },
-          { num: "2", title: "Instant Processing", desc: isImageTool(toolId || "") ? "Converted right in your browser — no upload, zero wait." : "Our cloud servers process your video fast.", color: "bg-blue-50 text-blue-600" },
-          { num: "3", title: "Instant Download", desc: "Get your converted files immediately — one click.", color: "bg-green-50 text-green-600" },
+          { num: "1", title: "Upload Files", desc: "Select up to 10 images. PNG, JPG, WebP and more are all supported.", color: "bg-orange-50 text-orange-600" },
+          { num: "2", title: "Instant Processing", desc: isImageTool(toolId || "") ? "Converted instantly in your browser — no upload, zero wait, complete privacy." : "Our servers process your video quickly and securely.", color: "bg-blue-50 text-blue-600" },
+          { num: "3", title: "Download Instantly", desc: "Your converted files download automatically the moment processing completes.", color: "bg-green-50 text-green-600" },
         ].map(({ num, title, desc, color }) => (
           <motion.div key={num} whileHover={{ y: -5 }} className="text-center p-6 rounded-3xl bg-white border border-zinc-100 shadow-sm">
             <div className={`mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl ${color} font-black text-xl`}>{num}</div>
-            <h4 className="font-bold text-zinc-900 mb-3 text-lg">{title}</h4>
+            <h3 className="font-bold text-zinc-900 mb-3 text-lg">{title}</h3>
             <p className="text-sm text-zinc-500 leading-relaxed">{desc}</p>
           </motion.div>
         ))}
