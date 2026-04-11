@@ -19,6 +19,7 @@ export const Navbar = () => {
         </Link>
         <div className="hidden items-center gap-8 md:flex">
           <a href="/#tools" className="text-sm font-medium text-zinc-600 hover:text-orange-600 transition-colors">Tools</a>
+          <Link to="/blog" className="text-sm font-medium text-zinc-600 hover:text-orange-600 transition-colors">Blog</Link>
           <a href="/#pricing" className="text-sm font-medium text-zinc-600 hover:text-orange-600 transition-colors">Pricing</a>
           <a href="/#faq" className="text-sm font-medium text-zinc-600 hover:text-orange-600 transition-colors">FAQ</a>
         </div>
@@ -50,6 +51,7 @@ export const Navbar = () => {
           >
             <div className="flex flex-col p-4 space-y-4">
               <a href="/#tools" onClick={() => setIsMenuOpen(false)} className="text-lg font-bold text-zinc-900">Tools</a>
+              <Link to="/blog" onClick={() => setIsMenuOpen(false)} className="text-lg font-bold text-zinc-900">Blog</Link>
               <a href="/#pricing" onClick={() => setIsMenuOpen(false)} className="text-lg font-bold text-zinc-900">Pricing</a>
               <a href="/#faq" onClick={() => setIsMenuOpen(false)} className="text-lg font-bold text-zinc-900">FAQ</a>
               <button 
@@ -106,6 +108,7 @@ export const Footer = () => (
           <h3 className="text-sm font-semibold text-zinc-900 uppercase tracking-wider mb-4">Support</h3>
           <ul className="space-y-2 text-sm text-zinc-600">
             <li><Link to="/about" className="hover:text-orange-600">About Us</Link></li>
+            <li><Link to="/blog" className="hover:text-orange-600">Blog</Link></li>
             <li><Link to="/privacy" className="hover:text-orange-600">Privacy Policy</Link></li>
             <li><Link to="/terms" className="hover:text-orange-600">Terms of Service</Link></li>
             <li><Link to="/contact" className="hover:text-orange-600">Contact Us</Link></li>

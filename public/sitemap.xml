@@ -3,32 +3,86 @@
 
   <url>
     <loc>https://convertly-ruddy.vercel.app/</loc>
+    <lastmod>2026-04-11</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>1.00</priority>
   </url>
 
   <url>
     <loc>https://convertly-ruddy.vercel.app/tools</loc>
+    <lastmod>2026-04-11</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.90</priority>
   </url>
 
   <url>
     <loc>https://convertly-ruddy.vercel.app/about</loc>
+    <lastmod>2026-04-11</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
 
   <url>
     <loc>https://convertly-ruddy.vercel.app/contact</loc>
+    <lastmod>2026-04-11</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
 
   <url>
     <loc>https://convertly-ruddy.vercel.app/privacy</loc>
+    <lastmod>2026-04-11</lastmod>
+    <changefreq>yearly</changefreq>
     <priority>0.70</priority>
   </url>
 
   <url>
-    <loc>https://convertly-ruddy.vercel.app/terms</loc>
-    <priority>0.70</priority>
+    <loc>https://convertly-ruddy.vercel.app/blog</loc>
+    <lastmod>2026-04-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://convertly-ruddy.vercel.app/blog/how-to-convert-images-for-web-optimization</loc>
+    <lastmod>2026-04-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <url>
+    <loc>https://convertly-ruddy.vercel.app/blog/best-practices-for-video-compression</loc>
+    <lastmod>2026-04-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <url>
+    <loc>https://convertly-ruddy.vercel.app/blog/webp-vs-jpeg-which-format-to-choose</loc>
+    <lastmod>2026-04-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <url>
+    <loc>https://convertly-ruddy.vercel.app/blog/resize-images-without-losing-quality</loc>
+    <lastmod>2026-04-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <url>
+    <loc>https://convertly-ruddy.vercel.app/blog/extracting-audio-from-videos-guide</loc>
+    <lastmod>2026-04-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <url>
+    <loc>https://convertly-ruddy.vercel.app/blog/converting-videos-to-gifs-social-media</loc>
+    <lastmod>2026-04-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
   </url>
 
 </urlset>

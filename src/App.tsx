@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { Navbar, Footer } from "./components/Navigation";
 import { HomePage } from "./pages/HomePage";
 import { ToolPage } from "./pages/ToolPage";
+import BlogPage from "./pages/BlogPage";
+import BlogPostPage from "./pages/BlogPostPage";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Check, Loader2, ArrowUp, Zap, Shield, CheckCircle2 } from "lucide-react";
 import { Toaster, toast } from "sonner";
@@ -371,6 +373,8 @@ export default function App() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/tool/:toolId" element={<ToolPage />} />
+              <Route path="/blog" element={<BlogPage />} />
+              <Route path="/blog/:slug" element={<BlogPostPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/contact" element={<ContactPage />} />

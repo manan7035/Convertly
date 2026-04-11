@@ -477,6 +477,73 @@ export const HomePage = () => {
         </div>
       </section>
 
+      {/* Blog Section */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-10 md:mb-16">
+          <h2 className="text-4xl font-black tracking-tight text-zinc-900">Latest from Our Blog</h2>
+          <p className="mt-4 text-zinc-500 font-medium">Tips, tutorials, and insights on file conversion and digital media.</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {[
+            {
+              title: "How to Convert Images for Web Optimization",
+              excerpt: "Learn the best practices for converting images to optimize your website's loading speed and user experience.",
+              slug: "how-to-convert-images-for-web-optimization",
+              date: "2026-04-10"
+            },
+            {
+              title: "Best Practices for Video Compression",
+              excerpt: "Discover how to compress videos effectively while maintaining visual quality for web and social media use.",
+              slug: "best-practices-for-video-compression",
+              date: "2026-04-08"
+            },
+            {
+              title: "WebP vs JPEG: Which Format to Choose?",
+              excerpt: "Compare WebP and JPEG formats to understand when to use each for optimal web performance.",
+              slug: "webp-vs-jpeg-which-format-to-choose",
+              date: "2026-04-05"
+            }
+          ].map((post, index) => (
+            <motion.article
+              key={post.slug}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1 }}
+              className="group bg-white rounded-3xl border border-zinc-200 p-8 shadow-sm hover:shadow-xl hover:border-orange-200 transition-all"
+            >
+              <div className="text-sm text-zinc-500 mb-4">
+                {new Date(post.date).toLocaleDateString('en-US', { 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
+              </div>
+              <h3 className="text-xl font-bold text-zinc-900 mb-3 group-hover:text-orange-600 transition-colors">
+                <Link to={`/blog/${post.slug}`}>{post.title}</Link>
+              </h3>
+              <p className="text-zinc-600 mb-6 leading-relaxed">{post.excerpt}</p>
+              <Link 
+                to={`/blog/${post.slug}`}
+                className="inline-flex items-center gap-2 text-orange-600 font-semibold hover:text-orange-700 transition-colors"
+              >
+                Read More
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </motion.article>
+          ))}
+        </div>
+        <div className="text-center mt-12">
+          <Link 
+            to="/blog"
+            className="inline-flex items-center gap-2 rounded-full bg-zinc-900 px-8 py-4 text-sm font-bold text-white shadow-xl shadow-zinc-900/20 transition-all hover:bg-zinc-800 hover:scale-105 active:scale-95"
+          >
+            View All Posts
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </section>
+
       {/* Final CTA */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="rounded-[40px] bg-orange-600 p-10 sm:p-14 text-center relative overflow-hidden">
