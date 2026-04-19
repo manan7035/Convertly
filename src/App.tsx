@@ -181,7 +181,7 @@ const PrivacyPage = () => (
           </p>
           <div className="mt-4 rounded-2xl bg-zinc-50 border border-zinc-100 p-6">
             <p className="font-bold text-zinc-900">Convertly</p>
-            <p className="text-zinc-600 mt-1">Email: <a href="mailto:support@convertly.com" className="text-orange-600 underline">support@convertly.com</a></p>
+            <p className="text-zinc-600 mt-1">Email: <a href="mailto:support@convertly.app" className="text-orange-600 underline">support@convertly.app</a></p>
             <p className="text-zinc-600">Website: <a href="https://convertly-ruddy.vercel.app" className="text-orange-600 underline">convertly-ruddy.vercel.app</a></p>
           </div>
         </section>
