@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
-import { usePlan } from "../App";
 import { 
   Image as ImageIcon, 
   Video as VideoIcon, 
@@ -124,8 +123,6 @@ const tools = [
 ];
 
 export const HomePage = () => {
-  const { plan, setUpgradeModalOpen } = usePlan();
-
   return (
     <div className="flex flex-col gap-24 py-16 overflow-x-hidden">
       {/* Hero Section */}
@@ -192,14 +189,6 @@ export const HomePage = () => {
             >
               Get Started Free
             </motion.a>
-            <motion.button 
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setUpgradeModalOpen(true)}
-              className="rounded-full bg-white px-6 py-3 text-sm font-bold text-zinc-900 ring-1 ring-zinc-200 shadow-md transition-all hover:bg-zinc-50"
-            >
-              View Pro Plans
-            </motion.button>
           </div>
         </motion.div>
       </section>
@@ -246,19 +235,7 @@ export const HomePage = () => {
         </div>
       </section>
 
-      {/* Ad Placeholder - Hidden for Pro */}
-      {plan !== "Pro" && (
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          <div className="rounded-2xl bg-zinc-50 border border-zinc-200 p-4 text-center">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-2">Advertisement</p>
-            <div className="h-24 w-full flex items-center justify-center border border-dashed border-zinc-300 rounded-xl text-zinc-300 text-sm font-bold italic">
-              Your Ad Here (Google AdSense)
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* Tools Grid */}
       <section id="tools" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-10 md:mb-16 flex flex-col items-center text-center gap-4">
           <h2 className="text-4xl font-black tracking-tight text-zinc-900">Our Tool Suite</h2>
@@ -358,7 +335,7 @@ export const HomePage = () => {
               {
                 name: "Elena Rodriguez",
                 role: "Content Creator",
-                text: "I love the clean design and the fact that it's free. The Pro plan is totally worth it for the speed.",
+                text: "I love the clean design and the fact that it's completely free. No sign-up, no watermarks — just instant results.",
                 image: "https://picsum.photos/seed/elena/100/100"
               }
             ].map((testimonial, idx) => (
@@ -381,74 +358,28 @@ export const HomePage = () => {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10  md:mb-16">
-          <h2 className="text-4xl font-black tracking-tight text-zinc-900 sm:text-5xl">Scale Your Workflow</h2>
-          <p className="mt-4 text-zinc-500 font-medium text-lg">Choose the plan that fits your needs.</p>
-        </div>
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-2 max-w-5xl mx-auto items-center">
-          {/* Free Plan */}
-          <motion.div 
-            whileHover={{ y: -10 }}
-            className="flex flex-col rounded-[2.5rem] border border-zinc-200 bg-white p-8 md:p-10 shadow-sm"
-          >
-            <h3 className="text-xl font-bold text-zinc-900">Free Tier</h3>
-            <div className="mt-6 flex items-baseline gap-1">
-              <span className="text-5xl font-black text-zinc-900">$0</span>
-              <span className="text-zinc-400 font-bold">/forever</span>
-            </div>
-            <p className="mt-4 text-zinc-500 text-sm font-medium">Perfect for occasional users and quick edits.</p>
-            <ul className="mt-10 space-y-5">
-              {[
-                "Max file size: 50MB",
-                "10 conversions per day",
-                "Standard processing",
-                "Community support"
-              ].map(item => (
-                <li key={item} className="flex items-center gap-4 text-sm font-bold text-zinc-600">
-                  <CheckCircle2 className="h-5 w-5 text-zinc-300" /> {item}
-                </li>
-              ))}
-            </ul>
-            <button className="mt-12 rounded-full border-2 border-zinc-100 py-3 text-md font-black text-zinc-400 cursor-not-allowed">
-              {plan === "Free" ? "Current Plan" : "Downgrade"}
-            </button>
-          </motion.div>
-          {/* Pro Plan */}
-          <motion.div 
-            whileHover={{ y: -10 }}
-            className="relative flex flex-col rounded-[2.5rem] border-4 border-orange-600 bg-white p-8 md:p-10 shadow-2xl shadow-orange-600/20"
-          >
-            <div className="absolute -top-5 left-1/2 -translate-x-1/2 rounded-full bg-orange-600 px-6 py-2 text-xs font-black text-white uppercase tracking-[0.2em] shadow-lg">
-              Recommended
-            </div>
-            <h3 className="text-xl font-bold text-zinc-900">Pro Access</h3>
-            <div className="mt-6 flex items-baseline gap-1">
-              <span className="text-5xl font-black text-zinc-900">$9</span>
-              <span className="text-zinc-400 font-bold">/month</span>
-            </div>
-            <p className="mt-4 text-zinc-500 text-sm font-medium">For power users who need speed and volume.</p>
-            <ul className="mt-10 space-y-5">
-              {[
-                "Max file size: 2GB",
-                "Unlimited bulk conversions",
-                "Priority processing speed",
-                "No advertisements",
-                "Early access to new tools"
-              ].map(item => (
-                <li key={item} className="flex items-center gap-4 text-sm font-bold text-zinc-900">
-                  <CheckCircle2 className="h-5 w-5 text-orange-600" /> {item}
-                </li>
-              ))}
-            </ul>
-            <button 
-              onClick={() => setUpgradeModalOpen(true)}
-              className="mt-12 rounded-full bg-orange-600 py-3 text-md font-black text-white shadow-lg shadow-orange-600/30 transition-all hover:bg-orange-700 hover:scale-[1.02] active:scale-[0.98]"
-            >
-              {plan === "Pro" ? "Manage Subscription" : "Upgrade to Pro"}
-            </button>
-          </motion.div>
+      {/* What is Convertly — rich content for AdSense crawlers */}
+      <section className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        <div className="rounded-3xl bg-zinc-50 border border-zinc-100 p-10 space-y-6">
+          <h2 className="text-3xl font-black text-zinc-900">What is Convertly?</h2>
+          <p className="text-zinc-600 leading-relaxed">
+            Convertly is a free online file conversion platform that lets you convert images and videos directly in your browser — no account, no software, and no upload to any server required. All image processing happens locally on your device using the browser's built-in Canvas API, which means your files stay completely private.
+          </p>
+          <p className="text-zinc-600 leading-relaxed">
+            Whether you need to convert a PNG to WebP for faster website loading, compress a batch of photos before uploading to WordPress, resize images to exact pixel dimensions for social media, or extract audio from a video file — Convertly has a dedicated tool for each task, and every tool is completely free to use.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-2">
+            {[
+              { title: "Image Conversion", desc: "Convert between PNG, JPG, WebP and more. Supports batch processing of up to 10 files at once with adjustable quality settings." },
+              { title: "Image Editing", desc: "Resize to custom dimensions, rotate to any angle, crop with drag-to-select, or compress to reduce file size — all without leaving your browser." },
+              { title: "Video Tools", desc: "Convert videos to MP4 for universal compatibility, or extract the audio track as an MP3 from any video file." },
+            ].map(({ title, desc }) => (
+              <div key={title} className="rounded-2xl bg-white border border-zinc-200 p-6">
+                <h3 className="font-bold text-zinc-900 mb-2">{title}</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -460,7 +391,7 @@ export const HomePage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
           <div className="p-8 rounded-3xl bg-zinc-50 border border-zinc-100">
             <h3 className="text-lg font-black text-zinc-900 mb-4">Is Convertly free to use?</h3>
-            <p className="text-zinc-500 font-medium leading-relaxed">Yes! Our basic tools are 100% free with a 50MB limit per file. You can upgrade to our Pro plan for larger files and unlimited usage.</p>
+            <p className="text-zinc-500 font-medium leading-relaxed">Yes! All tools are 100% free with no sign-up required. Image tools run entirely in your browser — your files never leave your device.</p>
           </div>
           <div className="p-8 rounded-3xl bg-zinc-50 border border-zinc-100">
             <h3 className="text-lg font-black text-zinc-900 mb-4">Are my files safe?</h3>
@@ -471,8 +402,8 @@ export const HomePage = () => {
             <p className="text-zinc-500 font-medium leading-relaxed">We support hundreds of formats including PNG, JPG, WebP, MP4, MOV, PDF, and more. We are constantly adding new tools.</p>
           </div>
           <div className="p-8 rounded-3xl bg-zinc-50 border border-zinc-100">
-            <h3 className="text-lg font-black text-zinc-900 mb-4">Can I cancel my Pro plan?</h3>
-            <p className="text-zinc-500 font-medium leading-relaxed">Yes, you can cancel your subscription at any time from your account settings. You will retain access until the end of your billing period.</p>
+            <h3 className="text-lg font-black text-zinc-900 mb-4">Can I cancel my subscription?</h3>
+            <p className="text-zinc-500 font-medium leading-relaxed">There is no subscription — Convertly is completely free. No credit card, no sign-up, no hidden fees.</p>
           </div>
         </div>
       </section>
@@ -489,19 +420,19 @@ export const HomePage = () => {
               title: "How to Convert Images for Web Optimization",
               excerpt: "Learn the best practices for converting images to optimize your website's loading speed and user experience.",
               slug: "how-to-convert-images-for-web-optimization",
-              date: "2026-04-10"
+              date: "2024-11-12"
             },
             {
               title: "Best Practices for Video Compression",
               excerpt: "Discover how to compress videos effectively while maintaining visual quality for web and social media use.",
               slug: "best-practices-for-video-compression",
-              date: "2026-04-08"
+              date: "2024-10-28"
             },
             {
               title: "WebP vs JPEG: Which Format to Choose?",
               excerpt: "Compare WebP and JPEG formats to understand when to use each for optimal web performance.",
               slug: "webp-vs-jpeg-which-format-to-choose",
-              date: "2026-04-05"
+              date: "2024-10-05"
             }
           ].map((post, index) => (
             <motion.article

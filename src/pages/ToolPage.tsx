@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
-import { usePlan } from "../App";
 import { motion, AnimatePresence } from "motion/react";
 import { 
   Upload, 
@@ -14,7 +13,9 @@ import {
   Files,
   Shield,
   Zap,
-  Globe
+  Globe,
+  RotateCw,
+  RefreshCw
 } from "lucide-react";
 import { convertImageClientSide, isImageTool, getOutputExtension } from "../utils/clientConvert";
 
@@ -204,40 +205,9 @@ const toolDescriptions: Record<string, {
   },
 };
 
-declare global {
-  interface Window {
-    adsbygoogle: unknown[];
-  }
-}
-
-const AdSlot = ({ slot }: { slot: string }) => {
-  const ref = React.useRef<HTMLModElement>(null);
-  React.useEffect(() => {
-    try {
-      if (ref.current && ref.current.offsetWidth > 0) {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-      }
-    } catch {}
-  }, []);
-  return (
-    <div className="my-6 overflow-hidden rounded-2xl bg-zinc-50 border border-zinc-100 text-center min-h-[90px] flex items-center justify-center">
-      <ins
-        ref={ref}
-        className="adsbygoogle"
-        style={{ display: "block", width: "100%", minHeight: 90 }}
-        data-ad-client="ca-pub-5191988160324352"
-        data-ad-slot={slot}
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-      />
-    </div>
-  );
-};
-
 export const ToolPage = () => {
   const { toolId } = useParams();
-  const { plan } = usePlan();
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<File[]>([] as File[]);
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -247,14 +217,69 @@ export const ToolPage = () => {
   const [resizeHeight, setResizeHeight] = useState<string>("");
   const [quality, setQuality] = useState<number>(80);
   const [rotationAngle, setRotationAngle] = useState<string>("90");
-  const [cropWidth, setCropWidth] = useState<string>("500");
-  const [cropHeight, setCropHeight] = useState<string>("500");
   const [targetImageFormat, setTargetImageFormat] = useState<string>("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  // Drag-crop state
+  type CropRect = { x: number; y: number; w: number; h: number };
+  const [cropRect, setCropRect] = useState<CropRect | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStart = useRef<{ x: number; y: number } | null>(null);
+  const cropImgRef = useRef<HTMLImageElement | null>(null);
+  const cropContainerRef = useRef<HTMLDivElement | null>(null);
+  // Natural image dimensions for scaling
+  const imgNaturalSize = useRef<{ w: number; h: number }>({ w: 0, h: 0 });
 
   React.useEffect(() => {
     return () => { if (previewUrl) URL.revokeObjectURL(previewUrl); };
   }, [previewUrl]);
+
+  // Convert display rect → actual image pixel coords
+  const toImageCoords = useCallback((rect: CropRect): CropRect => {
+    const el = cropImgRef.current;
+    if (!el) return rect;
+    const scaleX = imgNaturalSize.current.w / el.offsetWidth;
+    const scaleY = imgNaturalSize.current.h / el.offsetHeight;
+    return { x: rect.x * scaleX, y: rect.y * scaleY, w: rect.w * scaleX, h: rect.h * scaleY };
+  }, []);
+
+  const getPointerPos = (e: React.MouseEvent | React.TouchEvent, container: HTMLDivElement) => {
+    const bounds = container.getBoundingClientRect();
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+    return {
+      x: Math.max(0, Math.min(clientX - bounds.left, bounds.width)),
+      y: Math.max(0, Math.min(clientY - bounds.top, bounds.height)),
+    };
+  };
+
+  const onCropMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    const container = cropContainerRef.current;
+    if (!container) return;
+    const pos = getPointerPos(e, container);
+    dragStart.current = pos;
+    setCropRect({ x: pos.x, y: pos.y, w: 0, h: 0 });
+    setIsDragging(true);
+  };
+
+  const onCropMouseMove = (e: React.MouseEvent | React.TouchEvent) => {
+    if (!isDragging || !dragStart.current) return;
+    e.preventDefault();
+    const container = cropContainerRef.current;
+    if (!container) return;
+    const pos = getPointerPos(e, container);
+    const x = Math.min(pos.x, dragStart.current.x);
+    const y = Math.min(pos.y, dragStart.current.y);
+    const w = Math.abs(pos.x - dragStart.current.x);
+    const h = Math.abs(pos.y - dragStart.current.y);
+    setCropRect({ x, y, w, h });
+  };
+
+  const onCropMouseUp = () => {
+    setIsDragging(false);
+    dragStart.current = null;
+  };
 
   const toolName = toolId?.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
   const isSingleFileTool = toolId === "video-to-mp4" || toolId === "extract-audio" || toolId === "crop-image";
@@ -288,7 +313,7 @@ export const ToolPage = () => {
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const chosen = Array.from(e.target.files);
+      const chosen: File[] = Array.from(e.target.files);
       const newFiles = isSingleFileTool ? chosen.slice(0, 1) : chosen.slice(0, 10);
       const uniqueFileId = (f: File) => `${f.name}-${f.size}-${f.lastModified}`;
       const existingIds = new Set(files.map(uniqueFileId));
@@ -309,11 +334,11 @@ export const ToolPage = () => {
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    const chosen = Array.from(e.dataTransfer.files);
+    const chosen: File[] = Array.from(e.dataTransfer.files);
     const newFiles = isSingleFileTool ? chosen.slice(0, 1) : chosen.slice(0, 10);
     setFiles(prev => isSingleFileTool ? newFiles : [...prev, ...newFiles].slice(0, 10));
     setError(null); setIsComplete(false);
-    const first = newFiles[0];
+    const first = newFiles[0] as File;
     if (first?.type.startsWith("image/")) setPreviewUrl(URL.createObjectURL(first));
   };
 
@@ -326,13 +351,18 @@ export const ToolPage = () => {
     if (!files.length) return;
     setIsUploading(true); setProgress(10); setError(null);
     try {
-      const options = { targetFormat, quality, width: resizeWidth, height: resizeHeight, rotationAngle, cropWidth, cropHeight };
+      const imgCoords = cropRect ? toImageCoords(cropRect) : null;
+      const options = {
+        targetFormat, quality, width: resizeWidth, height: resizeHeight, rotationAngle,
+        cropX: imgCoords?.x, cropY: imgCoords?.y,
+        cropWidth: imgCoords?.w, cropHeight: imgCoords?.h,
+      };
       const results: { blob: Blob; name: string }[] = [];
       for (let i = 0; i < files.length; i++) {
         setProgress(Math.round(10 + (70 * i) / files.length));
-        const blob = await convertImageClientSide(files[i], toolId || "", options);
-        const ext = getOutputExtension(toolId || "", targetFormat, files[i]);
-        results.push({ blob, name: `converted-${files[i].name.split(".")[0]}.${ext}` });
+        const blob = await convertImageClientSide(files[i] as File, toolId || "", options);
+        const ext = getOutputExtension(toolId || "", targetFormat, files[i] as File);
+        results.push({ blob, name: `converted-${(files[i] as File).name.split(".")[0]}.${ext}` });
       }
       setProgress(90);
       for (const r of results) {
@@ -375,12 +405,17 @@ export const ToolPage = () => {
   const handleConvert = () => isImageTool(toolId || "") ? handleConvertImages() : handleConvertVideo();
 
   const handleConvertSingle = async (index: number) => {
-    const file = files[index];
+    const file = files[index] as File;
     if (!file) return;
     setIsUploading(true); setProgress(10); setError(null);
     try {
       if (isImageTool(toolId || "")) {
-        const options = { targetFormat, quality, width: resizeWidth, height: resizeHeight, rotationAngle, cropWidth, cropHeight };
+        const imgCoords = cropRect ? toImageCoords(cropRect) : null;
+        const options = {
+          targetFormat, quality, width: resizeWidth, height: resizeHeight, rotationAngle,
+          cropX: imgCoords?.x, cropY: imgCoords?.y,
+          cropWidth: imgCoords?.w, cropHeight: imgCoords?.h,
+        };
         setProgress(40);
         const blob = await convertImageClientSide(file, toolId || "", options);
         setProgress(80);
@@ -391,7 +426,7 @@ export const ToolPage = () => {
         document.body.appendChild(a); a.click(); URL.revokeObjectURL(url); document.body.removeChild(a);
       } else {
         const formData = new FormData();
-        formData.append("files", file); formData.append("targetFormat", targetFormat); formData.append("toolId", toolId || "");
+        formData.append("files", file as Blob); formData.append("targetFormat", targetFormat); formData.append("toolId", toolId || "");
         setProgress(30);
         const response = await fetch(buildEndpoint("/api/convert/video"), { method: "POST", body: formData });
         if (!response.ok) throw new Error("Conversion failed.");
@@ -435,8 +470,7 @@ export const ToolPage = () => {
         </div>
       </motion.div>
 
-      {/* Ad slot above tool */}
-      {plan !== "Pro" && <AdSlot slot="1234567890" />}
+      {/* Ad slot above tool - removed */}
 
       {/* Upload Card */}
       <div className="rounded-3xl border-2 border-dashed border-zinc-200 bg-zinc-50 p-8 sm:p-12 transition-all hover:border-orange-600/50 shadow-sm">
@@ -566,12 +600,19 @@ export const ToolPage = () => {
 
                 {toolId === "rotate-image" && (
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-zinc-900 ml-2">Rotation Angle</label>
+                    <label className="text-sm font-bold text-zinc-900 ml-2">Rotation Direction</label>
                     <div className="grid grid-cols-3 gap-3">
-                      {["90", "180", "270"].map((angle) => (
+                      {[
+                        { angle: "90",  label: "90° Right",   icon: <RotateCw className="h-5 w-5" /> },
+                        { angle: "180", label: "Flip 180°",   icon: <RefreshCw className="h-5 w-5" /> },
+                        { angle: "270", label: "90° Left",    icon: <RotateCw className="h-5 w-5 scale-x-[-1]" /> },
+                      ].map(({ angle, label, icon }) => (
                         <button key={angle} onClick={() => setRotationAngle(angle)}
-                          className={`rounded-2xl border py-3 text-sm font-bold transition-all ${rotationAngle === angle ? "border-orange-600 bg-orange-50 text-orange-600" : "border-zinc-200 bg-white text-zinc-600"}`}>
-                          {angle}°
+                          className={`flex flex-col items-center gap-1.5 rounded-2xl border py-3 px-2 text-xs font-bold transition-all ${
+                            rotationAngle === angle ? "border-orange-600 bg-orange-50 text-orange-600" : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300"
+                          }`}>
+                          {icon}
+                          {label}
                         </button>
                       ))}
                     </div>
@@ -581,49 +622,125 @@ export const ToolPage = () => {
                 {toolId === "crop-image" && (
                   <div className="space-y-4">
                     {previewUrl && (
-                      <div className="mx-auto overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100 p-2">
-                        <p className="text-[10px] font-bold text-zinc-400 uppercase mb-2 text-center">Preview</p>
-                        <img src={previewUrl} alt="Preview" className="max-h-[300px] w-auto rounded-lg mx-auto" />
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label className="text-sm font-bold text-zinc-900 ml-2">Drag to select crop area</label>
+                          {cropRect && cropRect.w > 2 && cropRect.h > 2 && (
+                            <span className="text-xs font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-full">
+                              {Math.round(toImageCoords(cropRect).w)} × {Math.round(toImageCoords(cropRect).h)} px
+                            </span>
+                          )}
+                        </div>
+                        <div
+                          ref={cropContainerRef}
+                          className="relative overflow-hidden rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-100 cursor-crosshair select-none"
+                          style={{ touchAction: "none" }}
+                          onMouseDown={onCropMouseDown}
+                          onMouseMove={onCropMouseMove}
+                          onMouseUp={onCropMouseUp}
+                          onMouseLeave={onCropMouseUp}
+                          onTouchStart={onCropMouseDown}
+                          onTouchMove={onCropMouseMove}
+                          onTouchEnd={onCropMouseUp}
+                        >
+                          <img
+                            ref={cropImgRef}
+                            src={previewUrl}
+                            alt="Crop preview"
+                            className="block w-full max-h-[360px] object-contain pointer-events-none"
+                            onLoad={(e) => {
+                              const el = e.currentTarget;
+                              imgNaturalSize.current = { w: el.naturalWidth, h: el.naturalHeight };
+                            }}
+                            draggable={false}
+                          />
+                          {/* Dark overlay outside selection */}
+                          {cropRect && cropRect.w > 2 && cropRect.h > 2 && (
+                            <>
+                              <div className="absolute inset-0 bg-black/40 pointer-events-none" />
+                              <div
+                                className="absolute border-2 border-white shadow-lg pointer-events-none"
+                                style={{
+                                  left: cropRect.x, top: cropRect.y,
+                                  width: cropRect.w, height: cropRect.h,
+                                  boxShadow: "0 0 0 9999px rgba(0,0,0,0.45)",
+                                }}
+                              >
+                                {/* Rule-of-thirds grid lines */}
+                                <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none">
+                                  {Array.from({ length: 9 }).map((_, i) => (
+                                    <div key={i} className="border border-white/30" />
+                                  ))}
+                                </div>
+                              </div>
+                            </>
+                          )}
+                          {(!cropRect || cropRect.w <= 2) && (
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <span className="text-xs font-bold text-zinc-500 bg-white/80 px-3 py-1.5 rounded-full">
+                                Click and drag to select crop area
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex gap-2 flex-wrap">
+                          <span className="text-xs font-bold text-zinc-500 ml-2 self-center">Presets:</span>
+                          {[
+                            { label: "1:1", ratio: 1 / 1 },
+                            { label: "4:3", ratio: 4 / 3 },
+                            { label: "16:9", ratio: 16 / 9 },
+                            { label: "9:16", ratio: 9 / 16 },
+                          ].map((p) => (
+                            <button key={p.label}
+                              onClick={() => {
+                                const el = cropImgRef.current;
+                                if (!el) return;
+                                const dispW = el.offsetWidth;
+                                const dispH = el.offsetHeight;
+                                let w = dispW * 0.8;
+                                let h = w / p.ratio;
+                                if (h > dispH * 0.8) { h = dispH * 0.8; w = h * p.ratio; }
+                                const x = (dispW - w) / 2;
+                                const y = (dispH - h) / 2;
+                                setCropRect({ x, y, w, h });
+                              }}
+                              className="rounded-full bg-zinc-100 px-3 py-1 text-[11px] font-bold text-zinc-600 hover:bg-orange-100 hover:text-orange-600 transition-all">
+                              {p.label}
+                            </button>
+                          ))}
+                          {cropRect && (
+                            <button onClick={() => setCropRect(null)}
+                              className="rounded-full bg-red-50 px-3 py-1 text-[11px] font-bold text-red-500 hover:bg-red-100 transition-all">
+                              Reset
+                            </button>
+                          )}
+                        </div>
                       </div>
                     )}
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-zinc-900 ml-2">Quick Presets</label>
-                      <div className="flex flex-wrap gap-2">
-                        {[{ label: "1:1 Square", w: "500", h: "500" }, { label: "4:3 Classic", w: "800", h: "600" }, { label: "16:9 Wide", w: "1280", h: "720" }, { label: "9:16 Story", w: "720", h: "1280" }].map((p) => (
-                          <button key={p.label} onClick={() => { setCropWidth(p.w); setCropHeight(p.h); }}
-                            className="rounded-full bg-zinc-100 px-3 py-1 text-[10px] font-bold text-zinc-600 hover:bg-orange-100 hover:text-orange-600 transition-all">
-                            {p.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <label className="text-sm font-bold text-zinc-900 ml-2">Crop Width (px)</label>
-                        <input type="number" value={cropWidth} onChange={(e) => setCropWidth(e.target.value)}
-                          className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-medium focus:border-orange-600 focus:outline-none shadow-sm" />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-bold text-zinc-900 ml-2">Crop Height (px)</label>
-                        <input type="number" value={cropHeight} onChange={(e) => setCropHeight(e.target.value)}
-                          className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-medium focus:border-orange-600 focus:outline-none shadow-sm" />
-                      </div>
-                    </div>
                   </div>
                 )}
 
-                {(toolId === "compress-image" || toolId?.includes("-to-") || toolId === "resize-image" || toolId === "rotate-image" || toolId === "crop-image") && (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between ml-2">
-                      <label className="text-sm font-bold text-zinc-900">Quality: {quality}%</label>
-                      <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
-                        {quality > 80 ? "Best Quality" : quality > 50 ? "Balanced" : "Smallest Size"}
-                      </span>
+                {(toolId === "compress-image" || toolId?.includes("-to-") || toolId === "resize-image" || toolId === "rotate-image" || toolId === "crop-image") && (() => {
+                  // Determine if output is PNG (lossless — quality slider not applicable)
+                  const outFmt = targetImageFormat || (toolId?.includes("-to-") ? toolId.split("-to-")[1] : "");
+                  const isPngOut = outFmt === "png" || toolId === "jpg-to-png" || toolId === "webp-to-png";
+                  return isPngOut ? (
+                    <div className="rounded-xl bg-zinc-50 border border-zinc-200 px-4 py-3 text-xs font-bold text-zinc-500">
+                      PNG output is always lossless — no quality compression applied.
                     </div>
-                    <input type="range" min="1" max="100" value={quality} onChange={(e) => setQuality(parseInt(e.target.value))}
-                      className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-orange-600" />
-                  </div>
-                )}
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between ml-2">
+                        <label className="text-sm font-bold text-zinc-900">Quality: {quality}%</label>
+                        <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
+                          {quality > 80 ? "Best Quality" : quality > 50 ? "Balanced" : "Smallest Size"}
+                        </span>
+                      </div>
+                      <input type="range" min="1" max="100" value={quality} onChange={(e) => setQuality(parseInt(e.target.value))}
+                        className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-orange-600" />
+                    </div>
+                  );
+                })()}
               </div>
             )}
 
@@ -643,8 +760,7 @@ export const ToolPage = () => {
         )}
       </div>
 
-      {/* Ad slot below tool */}
-      {plan !== "Pro" && <AdSlot slot="0987654321" />}
+      {/* Ad slot below tool - removed */}
 
       {/* SEO Content Section */}
       {toolInfo && (
@@ -701,8 +817,7 @@ export const ToolPage = () => {
             </div>
           </section>
 
-          {/* Mid-content ad */}
-          {plan !== "Pro" && <AdSlot slot="1122334455" />}
+          {/* Mid-content ad - removed */}
 
           {/* FAQ */}
           <section>

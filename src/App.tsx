@@ -6,9 +6,8 @@ import { ToolPage } from "./pages/ToolPage";
 import BlogPage from "./pages/BlogPage";
 import BlogPostPage from "./pages/BlogPostPage";
 import { motion, AnimatePresence } from "motion/react";
-import { X, Check, Loader2, ArrowUp, Zap, Shield, CheckCircle2 } from "lucide-react";
+import { ArrowUp, Zap, Shield, CheckCircle2 } from "lucide-react";
 import { Toaster, toast } from "sonner";
-
 const ScrollToTop = () => {
   const [isVisible, setIsVisible] = useState(false);
   React.useEffect(() => {
@@ -32,9 +31,6 @@ const ScrollToTop = () => {
 
 interface PlanContextType {
   plan: string;
-  upgradePlan: (type: string) => Promise<void>;
-  isUpgradeModalOpen: boolean;
-  setUpgradeModalOpen: (open: boolean) => void;
 }
 
 const PlanContext = createContext<PlanContextType | undefined>(undefined);
@@ -49,7 +45,7 @@ const PrivacyPage = () => (
   <div className="mx-auto max-w-4xl px-4 py-24 sm:px-6 lg:px-8">
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="prose prose-zinc max-w-none">
       <h1 className="text-4xl font-black text-zinc-900 mb-4">Privacy Policy</h1>
-      <p className="text-zinc-500 text-lg mb-10">Last Updated: April 11, 2026</p>
+      <p className="text-zinc-500 text-lg mb-10">Last Updated: January 15, 2025</p>
 
       <div className="space-y-10 text-zinc-600 font-medium">
 
@@ -84,7 +80,7 @@ const PrivacyPage = () => (
             <li>Improve, personalize, and expand our website</li>
             <li>Understand and analyze how you use our website</li>
             <li>Develop new tools, features, and functionality</li>
-            <li>Display relevant advertisements through Google AdSense (for free plan users)</li>
+            <li>Display relevant advertisements through Google AdSense</li>
           </ul>
         </section>
 
@@ -199,7 +195,7 @@ const TermsPage = () => (
   <div className="mx-auto max-w-4xl px-4 py-24 sm:px-6 lg:px-8">
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="prose prose-zinc max-w-none">
       <h1 className="text-4xl font-black text-zinc-900 mb-4">Terms of Service</h1>
-      <p className="text-zinc-500 text-lg mb-10">Last Updated: April 11, 2026</p>
+      <p className="text-zinc-500 text-lg mb-10">Last Updated: January 15, 2025</p>
       <div className="space-y-8 text-zinc-600 font-medium">
         <section>
           <h2 className="text-2xl font-bold text-zinc-900 mb-4">1. Acceptance of Terms</h2>
@@ -219,18 +215,14 @@ const TermsPage = () => (
         </section>
         <section>
           <h2 className="text-2xl font-bold text-zinc-900 mb-4">5. Advertising</h2>
-          <p>Convertly displays advertisements through Google AdSense on the free plan. By using the free plan, you agree to the display of these advertisements. Upgrade to Pro to remove all advertisements.</p>
+          <p>Convertly displays advertisements through Google AdSense. By using the site, you agree to the display of these advertisements.</p>
         </section>
         <section>
-          <h2 className="text-2xl font-bold text-zinc-900 mb-4">6. Pro Subscriptions</h2>
-          <p>Pro plan subscriptions provide increased limits and priority processing. Subscriptions are billed monthly and may be cancelled at any time. Refunds are provided at our discretion in accordance with applicable law.</p>
-        </section>
-        <section>
-          <h2 className="text-2xl font-bold text-zinc-900 mb-4">7. Limitation of Liability</h2>
+          <h2 className="text-2xl font-bold text-zinc-900 mb-4">6. Limitation of Liability</h2>
           <p>Convertly shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of or inability to use the service. Our total liability shall not exceed the amount you paid us in the past 12 months.</p>
         </section>
         <section>
-          <h2 className="text-2xl font-bold text-zinc-900 mb-4">8. Changes to Terms</h2>
+          <h2 className="text-2xl font-bold text-zinc-900 mb-4">7. Changes to Terms</h2>
           <p>We reserve the right to modify these terms at any time. Continued use of our service after changes constitutes acceptance of the new terms.</p>
         </section>
       </div>
@@ -253,7 +245,7 @@ const ContactPage = () => (
             </div>
             <div>
               <h4 className="font-bold text-zinc-900">Email Us</h4>
-              <p className="text-zinc-500 font-medium">support@convertly.com</p>
+              <p className="text-zinc-500 font-medium">support@convertly.app</p>
             </div>
           </div>
           <div className="flex items-center gap-6">
@@ -262,7 +254,7 @@ const ContactPage = () => (
             </div>
             <div>
               <h4 className="font-bold text-zinc-900">Privacy Questions</h4>
-              <p className="text-zinc-500 font-medium">privacy@convertly.com</p>
+              <p className="text-zinc-500 font-medium">privacy@convertly.app</p>
             </div>
           </div>
         </div>
@@ -294,30 +286,46 @@ const ContactPage = () => (
 const AboutPage = () => (
   <div className="mx-auto max-w-4xl px-4 py-24 sm:px-6 lg:px-8">
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-      <h1 className="text-4xl font-black text-zinc-900 mb-6">About Convertly</h1>
+      <h1 className="text-4xl font-black text-zinc-900 mb-4">About Convertly</h1>
       <p className="text-zinc-500 text-lg mb-12 font-medium leading-relaxed">
-        Convertly is a free online file conversion platform built for speed, privacy, and simplicity. We believe that powerful tools should be accessible to everyone — no sign-up, no subscriptions required to get started.
+        Convertly is a free online file conversion platform built for speed, privacy, and simplicity. We believe powerful tools should be accessible to everyone — no sign-up, no account, no cost.
       </p>
       <div className="space-y-10 text-zinc-600 font-medium">
+
+        <section className="rounded-3xl bg-zinc-50 border border-zinc-100 p-8">
+          <h2 className="text-2xl font-bold text-zinc-900 mb-4">Our Story</h2>
+          <p className="leading-relaxed mb-4">
+            Convertly started from a simple frustration: every file conversion tool online either demanded an account, charged a fee, uploaded your private files to unknown servers, or buried the download button under layers of ads. We decided to build something better.
+          </p>
+          <p className="leading-relaxed mb-4">
+            We launched Convertly with one goal — give people a fast, private, and genuinely free way to convert images and videos without any of the usual friction. No watermarks. No file size tricks. No dark patterns.
+          </p>
+          <p className="leading-relaxed">
+            Today, Convertly supports over a dozen conversion tools used by web developers, photographers, content creators, and everyday users who just need to convert a file quickly and get on with their day.
+          </p>
+        </section>
+
         <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="rounded-3xl bg-zinc-50 border border-zinc-100 p-8">
-            <h2 className="text-2xl font-bold text-zinc-900 mb-4">Our Mission</h2>
-            <p>We built Convertly because file conversion tools should be fast, private, and free. No ads between every click, no forced sign-ups, no uploading your private photos to unknown servers. Just convert your file and get on with your day.</p>
-          </div>
           <div className="rounded-3xl bg-orange-50 border border-orange-100 p-8">
             <Zap className="h-10 w-10 text-orange-600 mb-4 fill-current" />
             <h3 className="text-xl font-bold text-zinc-900 mb-2">Browser-First Technology</h3>
-            <p className="text-sm">Our image tools use your browser's built-in Canvas API to convert files locally on your device. No upload. No wait. No privacy risk.</p>
+            <p className="text-sm leading-relaxed">All image tools run entirely inside your browser using the Canvas API. Your files are processed locally on your own device — they are never sent to any server, never stored, and never seen by us. This is privacy by architecture, not just by policy.</p>
+          </div>
+          <div className="rounded-3xl bg-zinc-50 border border-zinc-100 p-8">
+            <Shield className="h-10 w-10 text-zinc-700 mb-4" />
+            <h3 className="text-xl font-bold text-zinc-900 mb-2">Our Mission</h3>
+            <p className="text-sm leading-relaxed">We believe that utility software should be free, fast, and respectful of your privacy. Convertly will always offer its core tools at no cost. We sustain the platform through non-intrusive advertising — never by selling your data or restricting features behind paywalls.</p>
           </div>
         </section>
+
         <section>
-          <h2 className="text-2xl font-bold text-zinc-900 mb-6">Why Choose Convertly?</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <h2 className="text-2xl font-bold text-zinc-900 mb-6">What We Offer</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
-              { icon: Shield, title: "Privacy by Design", desc: "Image files never leave your device. We technically cannot see your files." },
-              { icon: CheckCircle2, title: "No Hidden Costs", desc: "All image tools are completely free with no artificial limits on quality." },
-              { icon: Zap, title: "Lightning Fast", desc: "Browser-based processing means zero upload time and instant results." },
-              { icon: CheckCircle2, title: "No Watermarks", desc: "Your converted files are clean and professional — we add nothing." },
+              { icon: Shield, title: "Privacy by Design", desc: "Image files never leave your device. Conversion happens 100% locally in your browser using the Canvas API." },
+              { icon: CheckCircle2, title: "Completely Free", desc: "All tools are free with no artificial quality limits, no watermarks, and no hidden fees." },
+              { icon: Zap, title: "Instant Results", desc: "Browser-based processing means zero upload time. Most conversions complete in under a second." },
+              { icon: CheckCircle2, title: "No Account Needed", desc: "Open a tool, upload your file, download the result. No sign-up, no email, no tracking." },
             ].map(({ icon: Icon, title, desc }) => (
               <div key={title} className="flex gap-4 p-6 rounded-2xl bg-white border border-zinc-100 shadow-sm">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-orange-600">
@@ -331,11 +339,22 @@ const AboutPage = () => (
             ))}
           </div>
         </section>
+
+        <section className="rounded-3xl bg-zinc-50 border border-zinc-100 p-8">
+          <h2 className="text-2xl font-bold text-zinc-900 mb-4">How We Keep the Lights On</h2>
+          <p className="leading-relaxed mb-4">
+            Convertly is free to use and always will be. We sustain the platform through Google AdSense advertisements displayed on the site. These ads are served by Google and are clearly labeled. We do not sell user data, run affiliate schemes, or use deceptive monetization practices.
+          </p>
+          <p className="leading-relaxed">
+            If you find Convertly useful, the best way to support us is simply to use the tools and share the site with others who might find it helpful.
+          </p>
+        </section>
+
         <section className="bg-zinc-900 rounded-[3rem] p-12 text-white text-center">
-          <h2 className="text-3xl font-black mb-4">Ready to start?</h2>
-          <p className="text-zinc-400 mb-8 max-w-xl mx-auto">Join thousands of users who trust Convertly for fast, private file conversion.</p>
+          <h2 className="text-3xl font-black mb-4">Ready to convert something?</h2>
+          <p className="text-zinc-400 mb-8 max-w-xl mx-auto">All tools are free, instant, and private. No account required.</p>
           <Link to="/" className="inline-block rounded-full bg-orange-600 px-10 py-4 font-black transition-all hover:bg-orange-700 hover:scale-105 active:scale-95">
-            Explore Tools
+            Explore All Tools
           </Link>
         </section>
       </div>
@@ -343,27 +362,41 @@ const AboutPage = () => (
   </div>
 );
 
-export default function App() {
-  const [plan, setPlan] = useState("Free");
-  const [isUpgradeModalOpen, setUpgradeModalOpen] = useState(false);
-  const [isUpgrading, setIsUpgrading] = useState(false);
+const CookieBanner = () => {
+  const [visible, setVisible] = React.useState(() => !localStorage.getItem("cookie_consent"));
+  if (!visible) return null;
+  return (
+    <div className="fixed bottom-0 left-0 right-0 z-[200] bg-zinc-900 text-white px-4 py-4 sm:px-6">
+      <div className="mx-auto max-w-7xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <p className="text-sm text-zinc-300 leading-relaxed max-w-2xl">
+          We use cookies to improve your experience and display relevant ads via Google AdSense.
+          By continuing to use this site, you agree to our{" "}
+          <Link to="/privacy" className="underline text-orange-400 hover:text-orange-300">Privacy Policy</Link>.
+        </p>
+        <div className="flex gap-3 shrink-0">
+          <button
+            onClick={() => { localStorage.setItem("cookie_consent", "1"); setVisible(false); }}
+            className="rounded-full bg-orange-600 px-5 py-2 text-sm font-bold hover:bg-orange-700 transition-colors"
+          >
+            Accept
+          </button>
+          <button
+            onClick={() => { localStorage.setItem("cookie_consent", "0"); setVisible(false); }}
+            className="rounded-full border border-zinc-600 px-5 py-2 text-sm font-bold text-zinc-300 hover:bg-zinc-800 transition-colors"
+          >
+            Decline
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
-  const upgradePlan = async (type: string) => {
-    setIsUpgrading(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 2500));
-      setPlan(type);
-      setUpgradeModalOpen(false);
-      toast.success(`Successfully upgraded to ${type}!`);
-    } catch {
-      toast.error("Checkout failed. Please try again.");
-    } finally {
-      setIsUpgrading(false);
-    }
-  };
+export default function App() {
+  const plan = "Free";
 
   return (
-    <PlanContext.Provider value={{ plan, upgradePlan, isUpgradeModalOpen, setUpgradeModalOpen }}>
+    <PlanContext.Provider value={{ plan }}>
       <Router>
         <Toaster position="top-center" richColors />
         <ScrollToTop />
@@ -382,67 +415,7 @@ export default function App() {
             </Routes>
           </main>
           <Footer />
-
-          {/* Upgrade Modal */}
-          <AnimatePresence>
-            {isUpgradeModalOpen && (
-              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  onClick={() => setUpgradeModalOpen(false)}
-                  className="absolute inset-0 bg-zinc-900/60 backdrop-blur-sm" />
-                <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                  className="relative w-full max-w-lg overflow-hidden rounded-[2.5rem] bg-white shadow-2xl">
-                  {isUpgrading ? (
-                    <div className="flex flex-col items-center justify-center p-16 text-center">
-                      <div className="relative mb-8">
-                        <div className="h-20 w-20 rounded-full border-4 border-zinc-100 border-t-orange-600 animate-spin" />
-                        <Zap className="absolute top-1/2 left-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 text-orange-600 fill-current" />
-                      </div>
-                      <h2 className="text-2xl font-black text-zinc-900 mb-2">Secure Checkout</h2>
-                      <p className="text-zinc-500 font-medium">Processing your payment...</p>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="bg-orange-600 p-10 text-center text-white relative overflow-hidden">
-                        <Zap className="mx-auto mb-4 h-12 w-12 fill-current relative z-10" />
-                        <h2 className="text-3xl font-black tracking-tight relative z-10">Upgrade to Pro</h2>
-                        <p className="mt-2 text-orange-100 font-medium relative z-10">Unlock the full power of Convertly</p>
-                      </div>
-                      <div className="p-10">
-                        <div className="mb-10 space-y-5">
-                          {["Unlimited bulk conversions (up to 50 files)", "Massive 2GB file size limit", "Priority processing speed", "No advertisements", "Premium 24/7 support"].map(f => (
-                            <div key={f} className="flex items-center gap-4 text-sm font-bold text-zinc-700">
-                              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-orange-50 text-orange-600 shrink-0">
-                                <Check className="h-3.5 w-3.5 stroke-[3]" />
-                              </div>
-                              {f}
-                            </div>
-                          ))}
-                        </div>
-                        <div className="flex flex-col gap-4">
-                          <button onClick={() => upgradePlan("Pro")}
-                            className="w-full rounded-full bg-orange-600 py-5 text-lg font-black text-white shadow-lg shadow-orange-600/30 transition-all hover:bg-orange-700 hover:scale-[1.02] active:scale-[0.98]">
-                            Proceed to Checkout • $9/mo
-                          </button>
-                          <button onClick={() => setUpgradeModalOpen(false)}
-                            className="w-full rounded-full py-3 text-sm font-bold text-zinc-400 hover:text-zinc-600 transition-colors">
-                            Maybe later
-                          </button>
-                        </div>
-                        <p className="mt-6 text-center text-[10px] text-zinc-400 font-black uppercase tracking-[0.2em]">
-                          Secure 256-bit SSL Encrypted Payment
-                        </p>
-                      </div>
-                      <button onClick={() => setUpgradeModalOpen(false)}
-                        className="absolute top-4 right-4 rounded-full p-2 text-white/70 hover:text-white hover:bg-orange-700/50 transition-colors">
-                        <X className="h-5 w-5" />
-                      </button>
-                    </>
-                  )}
-                </motion.div>
-              </div>
-            )}
-          </AnimatePresence>
+          <CookieBanner />
         </div>
       </Router>
     </PlanContext.Provider>

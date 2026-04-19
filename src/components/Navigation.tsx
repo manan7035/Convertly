@@ -1,11 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Zap, Menu, X as CloseIcon } from "lucide-react";
-import { usePlan } from "../App";
 import { motion, AnimatePresence } from "motion/react";
 
 export const Navbar = () => {
-  const { plan, setUpgradeModalOpen } = usePlan();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   return (
@@ -18,19 +16,12 @@ export const Navbar = () => {
           <span className="text-xl font-bold tracking-tight text-zinc-900">Convertly</span>
         </Link>
         <div className="hidden items-center gap-8 md:flex">
+          <Link to="/" className="text-sm font-medium text-zinc-600 hover:text-orange-600 transition-colors">Home</Link>
           <a href="/#tools" className="text-sm font-medium text-zinc-600 hover:text-orange-600 transition-colors">Tools</a>
           <Link to="/blog" className="text-sm font-medium text-zinc-600 hover:text-orange-600 transition-colors">Blog</Link>
-          <a href="/#pricing" className="text-sm font-medium text-zinc-600 hover:text-orange-600 transition-colors">Pricing</a>
           <a href="/#faq" className="text-sm font-medium text-zinc-600 hover:text-orange-600 transition-colors">FAQ</a>
         </div>
         <div className="flex items-center gap-4">
-          <span className="hidden sm:inline-block text-xs font-bold uppercase tracking-widest text-zinc-400">Plan: {plan}</span>
-          <button 
-            onClick={() => setUpgradeModalOpen(true)}
-            className="hidden sm:block rounded-full bg-zinc-900 px-5 py-2 text-sm font-semibold text-white transition-all hover:bg-zinc-800 hover:scale-105 active:scale-95"
-          >
-            {plan === "Free" ? "Go Premium" : "Manage Pro"}
-          </button>
           <button 
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="rounded-full p-2 hover:bg-zinc-100 md:hidden"
@@ -50,19 +41,10 @@ export const Navbar = () => {
             className="border-b border-zinc-200 bg-white md:hidden"
           >
             <div className="flex flex-col p-4 space-y-4">
+              <Link to="/" onClick={() => setIsMenuOpen(false)} className="text-lg font-bold text-zinc-900">Home</Link>
               <a href="/#tools" onClick={() => setIsMenuOpen(false)} className="text-lg font-bold text-zinc-900">Tools</a>
               <Link to="/blog" onClick={() => setIsMenuOpen(false)} className="text-lg font-bold text-zinc-900">Blog</Link>
-              <a href="/#pricing" onClick={() => setIsMenuOpen(false)} className="text-lg font-bold text-zinc-900">Pricing</a>
               <a href="/#faq" onClick={() => setIsMenuOpen(false)} className="text-lg font-bold text-zinc-900">FAQ</a>
-              <button 
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  setUpgradeModalOpen(true);
-                }}
-                className="w-full rounded-full bg-orange-600 py-4 text-center font-bold text-white"
-              >
-                {plan === "Free" ? "Go Premium" : "Manage Pro"}
-              </button>
             </div>
           </motion.div>
         )}

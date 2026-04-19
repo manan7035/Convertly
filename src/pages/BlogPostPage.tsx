@@ -7,7 +7,7 @@ const blogPosts = [
   {
     slug: "how-to-convert-images-for-web-optimization",
     title: "How to Convert Images for Web Optimization: A Complete Guide",
-    date: "2026-04-10",
+    date: "2024-11-12",
     readTime: "5 min read",
     excerpt: "Learn the best practices for converting images to optimize your website's loading speed and user experience.",
     featuredImage: "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&h=400&fit=crop&crop=center",
@@ -93,7 +93,7 @@ img.src = 'input.png';</code></pre>
   {
     slug: "best-practices-for-video-compression",
     title: "Best Practices for Video Compression Without Losing Quality",
-    date: "2026-04-08",
+    date: "2024-10-28",
     readTime: "7 min read",
     excerpt: "Discover how to compress videos effectively while maintaining visual quality for web and social media use.",
     featuredImage: "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=800&h=400&fit=crop&crop=center",
@@ -166,7 +166,7 @@ img.src = 'input.png';</code></pre>
   {
     slug: "webp-vs-jpeg-which-format-to-choose",
     title: "WebP vs JPEG: Which Image Format Should You Choose?",
-    date: "2026-04-05",
+    date: "2024-10-05",
     readTime: "4 min read",
     excerpt: "Compare WebP and JPEG formats to understand when to use each for optimal web performance.",
     featuredImage: "https://images.unsplash.com/photo-1558655146-364adaf1fcc9?w=800&h=400&fit=crop&crop=center",
@@ -234,7 +234,7 @@ img.src = 'input.png';</code></pre>
   {
     slug: "resize-images-without-losing-quality",
     title: "How to Resize Images Without Losing Quality: Expert Tips",
-    date: "2026-04-03",
+    date: "2024-09-18",
     readTime: "6 min read",
     excerpt: "Master the art of image resizing with techniques that preserve quality and sharpness.",
     featuredImage: "https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800&h=400&fit=crop&crop=center",
@@ -306,7 +306,7 @@ img.src = 'input.png';</code></pre>
   {
     slug: "extracting-audio-from-videos-guide",
     title: "Extracting Audio from Videos: A Complete Guide",
-    date: "2026-04-01",
+    date: "2024-09-02",
     readTime: "5 min read",
     excerpt: "Learn how to extract audio tracks from video files for various purposes including podcasts and music production.",
     featuredImage: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=400&fit=crop&crop=center",
@@ -388,7 +388,7 @@ ffmpeg -i input.mkv -map 0:a:1 -acodec copy output.flac</code></pre>
   {
     slug: "converting-videos-to-gifs-social-media",
     title: "Converting Videos to GIFs for Social Media: Best Practices",
-    date: "2026-03-30",
+    date: "2024-08-20",
     readTime: "4 min read",
     excerpt: "Create engaging GIFs from videos optimized for social media platforms with these expert tips.",
     featuredImage: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=800&h=400&fit=crop&crop=center",
