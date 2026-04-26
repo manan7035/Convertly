@@ -3,25 +3,6 @@ import { useParams, Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { ArrowLeft, Calendar, Clock, Bookmark, ThumbsUp } from "lucide-react";
 
-const AdsTerraBanner468 = () => {
-  const ref = React.useRef<HTMLDivElement>(null);
-  React.useEffect(() => {
-    const container = ref.current;
-    if (!container || container.childElementCount > 0) return;
-    const cfgScript = document.createElement("script");
-    cfgScript.text = `atOptions = {'key':'6254721b546e2abec49524ef379ee287','format':'iframe','height':60,'width':468,'params':{}};`;
-    const invokeScript = document.createElement("script");
-    invokeScript.src = "https://www.highperformanceformat.com/6254721b546e2abec49524ef379ee287/invoke.js";
-    invokeScript.async = true;
-    container.appendChild(cfgScript);
-    container.appendChild(invokeScript);
-  }, []);
-  return (
-    <div className="my-8 flex justify-center overflow-hidden">
-      <div ref={ref} style={{ width: 468, maxWidth: "100%" }} />
-    </div>
-  );
-};
 
 const blogPosts = [
   {
@@ -573,12 +554,10 @@ const BlogPostPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
           {/* Main Content */}
           <div className="lg:col-span-3">
-            <AdsTerraBanner468 />
             <div
               className="blog-content prose prose-zinc max-w-none prose-headings:text-zinc-900 prose-headings:font-bold prose-h2:text-3xl prose-h2:mt-16 prose-h2:mb-8 prose-h3:text-2xl prose-h3:mt-12 prose-h3:mb-6 prose-p:text-zinc-700 prose-p:leading-relaxed prose-p:mb-6 prose-strong:text-zinc-900 prose-strong:font-semibold prose-ul:text-zinc-700 prose-ol:text-zinc-700 prose-li:mb-3 prose-blockquote:border-l-4 prose-blockquote:border-orange-500 prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-zinc-600 prose-blockquote:bg-zinc-50 prose-blockquote:p-6 prose-blockquote:rounded-r-lg prose-blockquote:my-8"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
-            <AdsTerraBanner468 />
           </div>
 
           {/* Sidebar */}
