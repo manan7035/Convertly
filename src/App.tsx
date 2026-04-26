@@ -231,7 +231,41 @@ const TermsPage = () => (
   </div>
 );
 
-const ContactPage = () => (
+const ContactPage = () => {
+  const [formData, setFormData] = React.useState({ name: "", email: "", message: "" });
+  const [sending, setSending] = React.useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSending(true);
+    try {
+      const ejs = (window as unknown as { emailjs: { send: (s: string, t: string, p: Record<string, string>) => Promise<void> } }).emailjs;
+
+      // Email to you
+      await ejs.send("service_kiepyhe", "template_710x2wp", {
+        from_name: formData.name,
+        from_email: formData.email,
+        message: formData.message,
+        to_email: "support@convertlytools.in",
+      });
+
+      // Confirmation email to user
+      await ejs.send("service_kiepyhe", "template_5079zf5", {
+        to_name: formData.name,
+        to_email: formData.email,
+        message: formData.message,
+      });
+
+      toast.success("Message sent! We'll get back to you soon.");
+      setFormData({ name: "", email: "", message: "" });
+    } catch {
+      toast.error("Failed to send message. Please try again.");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
   <div className="mx-auto max-w-5xl px-4 py-24 sm:px-6 lg:px-8">
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
       <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
@@ -262,27 +296,35 @@ const ContactPage = () => (
       </motion.div>
       <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
         className="rounded-[3rem] bg-zinc-50 border border-zinc-200 p-8 sm:p-12 shadow-xl shadow-zinc-200/20">
-        <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); toast.success("Message sent! We'll get back to you soon."); }}>
+        <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-2">
             <label className="text-sm font-bold text-zinc-900 ml-2">Full Name</label>
-            <input type="text" required className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-medium focus:border-orange-600 focus:outline-none shadow-sm" placeholder="John Doe" />
+            <input type="text" required value={formData.name}
+              onChange={e => setFormData(p => ({ ...p, name: e.target.value }))}
+              className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-medium focus:border-orange-600 focus:outline-none shadow-sm" placeholder="John Doe" />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-bold text-zinc-900 ml-2">Email Address</label>
-            <input type="email" required className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-medium focus:border-orange-600 focus:outline-none shadow-sm" placeholder="john@example.com" />
+            <input type="email" required value={formData.email}
+              onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
+              className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-medium focus:border-orange-600 focus:outline-none shadow-sm" placeholder="john@example.com" />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-bold text-zinc-900 ml-2">Message</label>
-            <textarea required rows={5} className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-medium focus:border-orange-600 focus:outline-none shadow-sm resize-none" placeholder="How can we help you?" />
+            <textarea required rows={5} value={formData.message}
+              onChange={e => setFormData(p => ({ ...p, message: e.target.value }))}
+              className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-medium focus:border-orange-600 focus:outline-none shadow-sm resize-none" placeholder="How can we help you?" />
           </div>
-          <button type="submit" className="w-full rounded-full bg-orange-600 py-5 text-lg font-black text-white shadow-lg shadow-orange-600/20 transition-all hover:bg-orange-700 hover:scale-[1.02] active:scale-[0.98]">
-            Send Message
+          <button type="submit" disabled={sending}
+            className="w-full rounded-full bg-orange-600 py-5 text-lg font-black text-white shadow-lg shadow-orange-600/20 transition-all hover:bg-orange-700 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60">
+            {sending ? "Sending..." : "Send Message"}
           </button>
         </form>
       </motion.div>
     </div>
   </div>
-);
+  );
+};
 
 const AboutPage = () => (
   <div className="mx-auto max-w-4xl px-4 py-24 sm:px-6 lg:px-8">
