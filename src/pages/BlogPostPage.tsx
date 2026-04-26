@@ -492,6 +492,26 @@ gifsicle -O3 output.gif -o optimized.gif</code></pre>
 ];
 
 
+const AdBanner300 = () => {
+  const ref = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    const container = ref.current;
+    if (!container || container.childElementCount > 0) return;
+    const cfg = document.createElement("script");
+    cfg.text = "atOptions = {'key':'c55b159783e57c46697eac82f170dc8c','format':'iframe','height':250,'width':300,'params':{}};";
+    const invoke = document.createElement("script");
+    invoke.src = "https://www.highperformanceformat.com/c55b159783e57c46697eac82f170dc8c/invoke.js";
+    invoke.async = true;
+    container.appendChild(cfg);
+    container.appendChild(invoke);
+  }, []);
+  return (
+    <div className="flex justify-center overflow-hidden">
+      <div ref={ref} style={{ width: 300, height: 250 }} />
+    </div>
+  );
+};
+
 const AdBanner728 = () => {
   const ref = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
@@ -622,6 +642,7 @@ const AdBanner728 = () => {
                       </Link>
                     ))}
                 </div>
+              <AdBanner300 />
               </div>
             </div>
           </div>
