@@ -52,7 +52,7 @@ const PrivacyPage = () => (
         <section>
           <h2 className="text-2xl font-bold text-zinc-900 mb-4">1. Introduction</h2>
           <p className="leading-relaxed">
-            Welcome to Convertly ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you visit our website at <strong>convertly-ruddy.vercel.app</strong> and use our file conversion tools.
+            Welcome to Convertly ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you visit our website at <strong>www.convertlytools.in</strong> and use our file conversion tools.
           </p>
           <p className="leading-relaxed mt-3">
             Please read this policy carefully. If you disagree with its terms, please discontinue use of our site.
@@ -180,9 +180,9 @@ const PrivacyPage = () => (
             If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:
           </p>
           <div className="mt-4 rounded-2xl bg-zinc-50 border border-zinc-100 p-6">
-            <p className="font-bold text-zinc-900">Convertly</p>
-            <p className="text-zinc-600 mt-1">Email: <a href="mailto:support@convertly.app" className="text-orange-600 underline">support@convertly.app</a></p>
-            <p className="text-zinc-600">Website: <a href="https://convertly-ruddy.vercel.app" className="text-orange-600 underline">convertly-ruddy.vercel.app</a></p>
+            <p className="font-bold text-zinc-900">Convertly Tools</p>
+            <p className="text-zinc-600 mt-1">Email: <a href="mailto:support@convertlytools.in" className="text-orange-600 underline">support@convertlytools.in</a></p>
+            <p className="text-zinc-600">Website: <a href="https://www.convertlytools.in" className="text-orange-600 underline">www.convertlytools.in</a></p>
           </div>
           
         </section>
@@ -246,7 +246,7 @@ const ContactPage = () => (
             </div>
             <div>
               <h4 className="font-bold text-zinc-900">Email Us</h4>
-              <p className="text-zinc-500 font-medium">support@convertly.app</p>
+              <p className="text-zinc-500 font-medium">support@convertlytools.in</p>
             </div>
           </div>
           <div className="flex items-center gap-6">
@@ -255,7 +255,7 @@ const ContactPage = () => (
             </div>
             <div>
               <h4 className="font-bold text-zinc-900">Privacy Questions</h4>
-              <p className="text-zinc-500 font-medium">privacy@convertly.app</p>
+              <p className="text-zinc-500 font-medium">privacy@convertlytools.in</p>
             </div>
           </div>
         </div>
