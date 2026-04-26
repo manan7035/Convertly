@@ -727,8 +727,6 @@ export const ToolPage = () => {
           </div>
         )}
       </div>
-      {/* Ad slot below tool */}
-      <AdBanner300 />
 
       {/* SEO Content Section */}
       {toolInfo && (
