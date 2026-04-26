@@ -19,6 +19,26 @@ import {
 } from "lucide-react";
 import { convertImageClientSide, isImageTool, getOutputExtension } from "../utils/clientConvert";
 
+const AdsTerraBanner = () => {
+  const ref = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    const container = ref.current;
+    if (!container || container.childElementCount > 0) return;
+    const cfgScript = document.createElement("script");
+    cfgScript.text = `atOptions = {'key':'e6443bfaa83c34893d191e63f2f8020c','format':'iframe','height':90,'width':728,'params':{}};`;
+    const invokeScript = document.createElement("script");
+    invokeScript.src = "https://www.highperformanceformat.com/e6443bfaa83c34893d191e63f2f8020c/invoke.js";
+    invokeScript.async = true;
+    container.appendChild(cfgScript);
+    container.appendChild(invokeScript);
+  }, []);
+  return (
+    <div className="my-6 flex justify-center overflow-hidden">
+      <div ref={ref} style={{ width: 728, maxWidth: "100%" }} />
+    </div>
+  );
+};
+
 const toolDescriptions: Record<string, {
   about: string;
   howTo: string[];
@@ -470,7 +490,8 @@ export const ToolPage = () => {
         </div>
       </motion.div>
 
-      {/* Ad slot above tool - removed */}
+      {/* Ad slot above tool */}
+      <AdsTerraBanner />
 
       {/* Upload Card */}
       <div className="rounded-3xl border-2 border-dashed border-zinc-200 bg-zinc-50 p-8 sm:p-12 transition-all hover:border-orange-600/50 shadow-sm">
@@ -760,7 +781,8 @@ export const ToolPage = () => {
         )}
       </div>
 
-      {/* Ad slot below tool - removed */}
+      {/* Ad slot below tool */}
+      <AdsTerraBanner />
 
       {/* SEO Content Section */}
       {toolInfo && (
@@ -817,7 +839,8 @@ export const ToolPage = () => {
             </div>
           </section>
 
-          {/* Mid-content ad - removed */}
+          {/* Mid-content ad */}
+          <AdsTerraBanner />
 
           {/* FAQ */}
           <section>
