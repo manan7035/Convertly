@@ -282,15 +282,6 @@ const ContactPage = () => {
               <p className="text-zinc-500 font-medium">support@convertlytools.in</p>
             </div>
           </div>
-          <div className="flex items-center gap-6">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
-              <Shield className="h-7 w-7" />
-            </div>
-            <div>
-              <h4 className="font-bold text-zinc-900">Privacy Questions</h4>
-              <p className="text-zinc-500 font-medium">privacy@convertlytools.in</p>
-            </div>
-          </div>
         </div>
       </motion.div>
       <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
