@@ -22,7 +22,8 @@ const AdBanner300 = () => {
   const ref = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
     const container = ref.current;
-    if (!container || container.childElementCount > 0) return;
+    if (!container) return;
+    container.innerHTML = "";
     const cfg = document.createElement("script");
     cfg.text = "atOptions = {'key':'c55b159783e57c46697eac82f170dc8c','format':'iframe','height':250,'width':300,'params':{}};";
     const invoke = document.createElement("script");
