@@ -191,38 +191,6 @@ const toolDescriptions: Record<string, {
       { q: "Will cropping reduce image quality?", a: "No. Cropping is a lossless geometric operation. The pixels within the cropped area are unchanged." }
     ]
   },
-  "video-to-mp4": {
-    about: "Convert any video format to MP4 — the most universally compatible video format supported by every device, browser, and platform. MP4 with H.264 encoding plays on iPhones, Android phones, smart TVs, Windows, macOS, and every major social media platform.",
-    howTo: [
-      "Upload your video file (MOV, AVI, MKV, WebM, or any common format)",
-      "Click Convert to MP4",
-      "Download your MP4 file ready for any platform"
-    ],
-    whyUse: "MP4 is the universal video format. Whether you are sharing on YouTube, Instagram, WhatsApp, or just want a file that plays on any device without installing codecs, MP4 is the answer. It offers excellent quality at small file sizes.",
-    formats: "Input: .mov, .avi, .mkv, .webm, .flv — Output: .mp4",
-    faqs: [
-      { q: "What video formats can be converted to MP4?", a: "Most common video formats are supported including MOV, AVI, MKV, WebM, FLV, WMV, and more." },
-      { q: "Will the video quality change?", a: "The video is re-encoded to H.264/MP4, which is highly efficient. The output quality is very close to the original." },
-      { q: "Is there a file size limit?", a: "Free plan supports up to 50MB per file." },
-      { q: "Why is MP4 the best format?", a: "MP4 (H.264) is supported natively by every modern device, browser, and platform — no plugins or additional software required." }
-    ]
-  },
-  "extract-audio": {
-    about: "Extract the audio track from any video file and save it as a high-quality MP3. Perfect for saving podcast recordings, extracting background music, creating audio clips from interviews, or converting video lessons to audio for listening on the go.",
-    howTo: [
-      "Upload your video file",
-      "Click Extract Audio",
-      "Download your MP3 audio file"
-    ],
-    whyUse: "Extracting audio from video is useful for dozens of workflows: creating podcast episodes from video interviews, saving background music from clips, making audio versions of video tutorials for commuting, or archiving audio from recordings.",
-    formats: "Input: .mp4, .mov, .avi, .mkv — Output: .mp3",
-    faqs: [
-      { q: "What quality will the extracted MP3 be?", a: "The audio is extracted at 192kbps MP3 quality, which is excellent for voice, podcasts, and most music." },
-      { q: "Can I extract audio from any video format?", a: "Yes — MP4, MOV, AVI, MKV, WebM and most common video formats are supported." },
-      { q: "Is there a file size limit?", a: "Free plan supports video files up to 50MB." },
-      { q: "Will the audio be perfectly synced?", a: "Audio extraction preserves the original audio track exactly as it appears in the video." }
-    ]
-  },
 };
 
 export const ToolPage = () => {
@@ -302,15 +270,12 @@ export const ToolPage = () => {
   };
 
   const toolName = toolId?.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
-  const isSingleFileTool = toolId === "video-to-mp4" || toolId === "extract-audio" || toolId === "crop-image";
+  const isSingleFileTool = toolId === "crop-image";
   const apiBaseUrl = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
   const buildEndpoint = (path: string) => apiBaseUrl ? `${apiBaseUrl}${path}` : path;
   const toolInfo = toolDescriptions[toolId || ""];
 
   const getTargetFormat = () => {
-    if (toolId === "extract-audio") return "mp3";
-    if (toolId === "video-to-mp4") return "mp4";
-    if (toolId === "video-to-gif") return "gif";
     if (targetImageFormat) return targetImageFormat;
     if (toolId === "resize-image" || toolId === "rotate-image" || toolId === "crop-image") return "";
     if (toolId?.includes("-to-")) return toolId.split("-to-")[1];
@@ -319,7 +284,6 @@ export const ToolPage = () => {
   const targetFormat = getTargetFormat();
 
   const getAcceptType = () => {
-    if (toolId?.includes("video") || toolId === "extract-audio") return "video/*";
     if (toolId?.includes("-to-")) {
       const source = toolId.split("-to-")[0];
       const sourceMap: Record<string, string> = {
@@ -422,41 +386,27 @@ export const ToolPage = () => {
     } finally { setIsUploading(false); }
   };
 
-  const handleConvert = () => isImageTool(toolId || "") ? handleConvertImages() : handleConvertVideo();
+  const handleConvert = () => handleConvertImages();
 
   const handleConvertSingle = async (index: number) => {
     const file = files[index] as File;
     if (!file) return;
     setIsUploading(true); setProgress(10); setError(null);
     try {
-      if (isImageTool(toolId || "")) {
-        const imgCoords = cropRect ? toImageCoords(cropRect) : null;
-        const options = {
-          targetFormat, quality, width: resizeWidth, height: resizeHeight, rotationAngle,
-          cropX: imgCoords?.x, cropY: imgCoords?.y,
-          cropWidth: imgCoords?.w, cropHeight: imgCoords?.h,
-        };
-        setProgress(40);
-        const blob = await convertImageClientSide(file, toolId || "", options);
-        setProgress(80);
-        const ext = getOutputExtension(toolId || "", targetFormat, file);
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url; a.download = `converted-${file.name.split(".")[0]}.${ext}`;
-        document.body.appendChild(a); a.click(); URL.revokeObjectURL(url); document.body.removeChild(a);
-      } else {
-        const formData = new FormData();
-        formData.append("files", file as Blob); formData.append("targetFormat", targetFormat); formData.append("toolId", toolId || "");
-        setProgress(30);
-        const response = await fetch(buildEndpoint("/api/convert/video"), { method: "POST", body: formData });
-        if (!response.ok) throw new Error("Conversion failed.");
-        setProgress(80);
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url; a.download = `converted-${file.name.split(".")[0]}.${targetFormat}`;
-        document.body.appendChild(a); a.click(); URL.revokeObjectURL(url); document.body.removeChild(a);
-      }
+      const imgCoords = cropRect ? toImageCoords(cropRect) : null;
+      const options = {
+        targetFormat, quality, width: resizeWidth, height: resizeHeight, rotationAngle,
+        cropX: imgCoords?.x, cropY: imgCoords?.y,
+        cropWidth: imgCoords?.w, cropHeight: imgCoords?.h,
+      };
+      setProgress(40);
+      const blob = await convertImageClientSide(file, toolId || "", options);
+      setProgress(80);
+      const ext = getOutputExtension(toolId || "", targetFormat, file);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = `converted-${file.name.split(".")[0]}.${ext}`;
+      document.body.appendChild(a); a.click(); URL.revokeObjectURL(url); document.body.removeChild(a);
       setProgress(100); setIsComplete(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred.");
@@ -508,9 +458,7 @@ export const ToolPage = () => {
             <div className="text-center">
               <p className="text-xl font-bold text-zinc-900">Click or drag files to upload</p>
               <p className="text-sm text-zinc-500 mt-1">
-                {isImageTool(toolId || "")
-                  ? "Up to 10 files · Converted in your browser · 100% private"
-                  : "Single video file · Max 50MB"}
+                Up to 10 files · Converted in your browser · 100% private
               </p>
               {toolInfo && <p className="text-xs text-zinc-400 mt-1">{toolInfo.formats}</p>}
             </div>
@@ -874,7 +822,7 @@ export const ToolPage = () => {
       <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-3">
         {[
           { num: "1", title: "Upload Files", desc: "Select up to 10 images. PNG, JPG, WebP and more are all supported.", color: "bg-orange-50 text-orange-600" },
-          { num: "2", title: "Instant Processing", desc: isImageTool(toolId || "") ? "Converted instantly in your browser — no upload, zero wait, complete privacy." : "Our servers process your video quickly and securely.", color: "bg-blue-50 text-blue-600" },
+          { num: "2", title: "Instant Processing", desc: "Converted instantly in your browser — no upload, zero wait, complete privacy.", color: "bg-blue-50 text-blue-600" },
           { num: "3", title: "Download Instantly", desc: "Your converted files download automatically the moment processing completes.", color: "bg-green-50 text-green-600" },
         ].map(({ num, title, desc, color }) => (
           <motion.div key={num} whileHover={{ y: -5 }} className="text-center p-6 rounded-3xl bg-white border border-zinc-100 shadow-sm">

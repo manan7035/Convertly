@@ -79,11 +79,13 @@ export const Footer = () => (
           </ul>
         </div>
         <div>
-          <h3 className="text-sm font-semibold text-zinc-900 uppercase tracking-wider mb-4">Video Tools</h3>
+          <h3 className="text-sm font-semibold text-zinc-900 uppercase tracking-wider mb-4">More Tools</h3>
           <ul className="space-y-2 text-sm text-zinc-600">
-            <li><Link to="/tool/video-to-mp4" className="hover:text-orange-600">Video to MP4</Link></li>
-            <li><Link to="/tool/extract-audio" className="hover:text-orange-600">Extract Audio</Link></li>
-            <li><Link to="/tool/video-to-gif" className="hover:text-orange-600">Video to GIF</Link></li>
+            <li><Link to="/tool/crop-image" className="hover:text-orange-600">Crop Image</Link></li>
+            <li><Link to="/tool/rotate-image" className="hover:text-orange-600">Rotate Image</Link></li>
+            <li><Link to="/tool/png-to-jpg" className="hover:text-orange-600">PNG to JPG</Link></li>
+            <li><Link to="/tool/jpg-to-png" className="hover:text-orange-600">JPG to PNG</Link></li>
+            <li><Link to="/tool/webp-to-png" className="hover:text-orange-600">WebP to PNG</Link></li>
           </ul>
         </div>
         <div>

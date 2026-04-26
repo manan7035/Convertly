@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { 
   Image as ImageIcon, 
-  Video as VideoIcon, 
   FileText as FileIcon, 
   Zap, 
   Shield, 
@@ -69,22 +68,6 @@ const tools = [
     icon: ImageIcon,
     category: "Image",
     color: "bg-blue-50 text-blue-600",
-  },
-  {
-    id: "video-to-mp4",
-    name: "Video to MP4",
-    description: "Convert any video format to MP4 with high quality.",
-    icon: VideoIcon,
-    category: "Video",
-    color: "bg-purple-50 text-purple-600",
-  },
-  {
-    id: "extract-audio",
-    name: "Extract Audio",
-    description: "Extract high-quality MP3 audio from any video file.",
-    icon: VideoIcon,
-    category: "Video",
-    color: "bg-purple-50 text-purple-600",
   },
   {
     id: "png-to-jpg",
@@ -372,7 +355,7 @@ export const HomePage = () => {
             {[
               { title: "Image Conversion", desc: "Convert between PNG, JPG, WebP and more. Supports batch processing of up to 10 files at once with adjustable quality settings." },
               { title: "Image Editing", desc: "Resize to custom dimensions, rotate to any angle, crop with drag-to-select, or compress to reduce file size — all without leaving your browser." },
-              { title: "Video Tools", desc: "Convert videos to MP4 for universal compatibility, or extract the audio track as an MP3 from any video file." },
+              { title: "Coming Soon", desc: "More tools are on the way including PDF conversion, background removal, and more. All free, all browser-based." },
             ].map(({ title, desc }) => (
               <div key={title} className="rounded-2xl bg-white border border-zinc-200 p-6">
                 <h3 className="font-bold text-zinc-900 mb-2">{title}</h3>

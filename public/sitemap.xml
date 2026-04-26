@@ -101,21 +101,6 @@
     <priority>0.85</priority>
   </url>
 
-  <!-- Video tool pages -->
-  <url>
-    <loc>https://convertly-ruddy.vercel.app/tool/video-to-mp4</loc>
-    <lastmod>2024-11-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
-  </url>
-
-  <url>
-    <loc>https://convertly-ruddy.vercel.app/tool/extract-audio</loc>
-    <lastmod>2024-11-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
-  </url>
-
   <!-- Blog -->
   <url>
     <loc>https://convertly-ruddy.vercel.app/blog</loc>
