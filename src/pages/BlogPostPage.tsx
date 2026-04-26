@@ -491,7 +491,26 @@ gifsicle -O3 output.gif -o optimized.gif</code></pre>
   }
 ];
 
-const BlogPostPage = () => {
+
+const AdBanner728 = () => {
+  const ref = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    const container = ref.current;
+    if (!container || container.childElementCount > 0) return;
+    const cfg = document.createElement("script");
+    cfg.text = "atOptions = {'key':'6e102c6823d72b9aa42e3220c340e24b','format':'iframe','height':90,'width':728,'params':{}};";
+    const invoke = document.createElement("script");
+    invoke.src = "https://www.highperformanceformat.com/6e102c6823d72b9aa42e3220c340e24b/invoke.js";
+    invoke.async = true;
+    container.appendChild(cfg);
+    container.appendChild(invoke);
+  }, []);
+  return (
+    <div className="my-6 flex justify-center overflow-hidden">
+      <div ref={ref} style={{ width: 728, maxWidth: "100%" }} />
+    </div>
+  );
+};const BlogPostPage = () => {
   const { slug } = useParams();
   const post = blogPosts.find(p => p.slug === slug);
 
@@ -554,10 +573,12 @@ const BlogPostPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
           {/* Main Content */}
           <div className="lg:col-span-3">
+            <AdBanner728 />
             <div
               className="blog-content prose prose-zinc max-w-none prose-headings:text-zinc-900 prose-headings:font-bold prose-h2:text-3xl prose-h2:mt-16 prose-h2:mb-8 prose-h3:text-2xl prose-h3:mt-12 prose-h3:mb-6 prose-p:text-zinc-700 prose-p:leading-relaxed prose-p:mb-6 prose-strong:text-zinc-900 prose-strong:font-semibold prose-ul:text-zinc-700 prose-ol:text-zinc-700 prose-li:mb-3 prose-blockquote:border-l-4 prose-blockquote:border-orange-500 prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-zinc-600 prose-blockquote:bg-zinc-50 prose-blockquote:p-6 prose-blockquote:rounded-r-lg prose-blockquote:my-8"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
+            <AdBanner728 />
           </div>
 
           {/* Sidebar */}

@@ -18,6 +18,25 @@ import {
   RefreshCw
 } from "lucide-react";
 import { convertImageClientSide, isImageTool, getOutputExtension } from "../utils/clientConvert";
+const AdBanner300 = () => {
+  const ref = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    const container = ref.current;
+    if (!container || container.childElementCount > 0) return;
+    const cfg = document.createElement("script");
+    cfg.text = "atOptions = {'key':'c55b159783e57c46697eac82f170dc8c','format':'iframe','height':250,'width':300,'params':{}};";
+    const invoke = document.createElement("script");
+    invoke.src = "https://www.highperformanceformat.com/c55b159783e57c46697eac82f170dc8c/invoke.js";
+    invoke.async = true;
+    container.appendChild(cfg);
+    container.appendChild(invoke);
+  }, []);
+  return (
+    <div className="my-6 flex justify-center">
+      <div ref={ref} style={{ width: 300, height: 250 }} />
+    </div>
+  );
+};
 
 
 const toolDescriptions: Record<string, {
@@ -420,6 +439,9 @@ export const ToolPage = () => {
           ))}
         </div>
       </motion.div>
+      {/* Ad slot above tool */}
+      <AdBanner300 />
+
       {/* Upload Card */}
       <div className="rounded-3xl border-2 border-dashed border-zinc-200 bg-zinc-50 p-8 sm:p-12 transition-all hover:border-orange-600/50 shadow-sm">
         {files.length === 0 ? (
@@ -705,6 +727,9 @@ export const ToolPage = () => {
           </div>
         )}
       </div>
+      {/* Ad slot below tool */}
+      <AdBanner300 />
+
       {/* SEO Content Section */}
       {toolInfo && (
         <div className="mt-16 space-y-10">
@@ -759,6 +784,9 @@ export const ToolPage = () => {
               </ul>
             </div>
           </section>
+          {/* Mid-content ad */}
+          <AdBanner300 />
+
           {/* FAQ */}
           <section>
             <h2 className="text-2xl font-black text-zinc-900 mb-6">
