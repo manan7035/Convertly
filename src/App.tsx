@@ -243,16 +243,15 @@ const ContactPage = () => {
 
       // Email to you
       await ejs.send("service_kiepyhe", "template_710x2wp", {
-        from_name: formData.name,
-        from_email: formData.email,
+        name: formData.name,
+        email: formData.email,
         message: formData.message,
-        to_email: "support@convertlytools.in",
       });
 
       // Confirmation email to user
       await ejs.send("service_kiepyhe", "template_5079zf5", {
-        to_name: formData.name,
-        to_email: formData.email,
+        name: formData.name,
+        email: formData.email,
         message: formData.message,
       });
 
