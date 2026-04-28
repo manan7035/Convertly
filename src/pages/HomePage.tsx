@@ -441,7 +441,7 @@ export const HomePage = () => {
                 to={`/blog/${post.slug}`}
                 className="inline-flex items-center gap-2 text-orange-600 font-semibold hover:text-orange-700 transition-colors"
               >
-                Read More
+                Read Article
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Link>
             </motion.article>
