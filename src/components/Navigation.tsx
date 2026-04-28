@@ -71,21 +71,21 @@ export const Footer = () => (
         <div>
           <h3 className="text-sm font-semibold text-zinc-900 uppercase tracking-wider mb-4">Image Tools</h3>
           <ul className="space-y-2 text-sm text-zinc-600">
-            <li><Link to="/tool/png-to-webp" className="hover:text-orange-600">PNG to WebP</Link></li>
-            <li><Link to="/tool/jpg-to-webp" className="hover:text-orange-600">JPG to WebP</Link></li>
-            <li><Link to="/tool/resize-image" className="hover:text-orange-600">Resize Image</Link></li>
-            <li><Link to="/tool/rotate-image" className="hover:text-orange-600">Rotate Image</Link></li>
-            <li><Link to="/tool/compress-image" className="hover:text-orange-600">Compress Image</Link></li>
+            <li><Link to="/png-to-webp" className="hover:text-orange-600">PNG to WebP</Link></li>
+            <li><Link to="/jpg-to-webp" className="hover:text-orange-600">JPG to WebP</Link></li>
+            <li><Link to="/resize-image" className="hover:text-orange-600">Resize Image</Link></li>
+            <li><Link to="/rotate-image" className="hover:text-orange-600">Rotate Image</Link></li>
+            <li><Link to="/compress-image" className="hover:text-orange-600">Compress Image</Link></li>
           </ul>
         </div>
         <div>
           <h3 className="text-sm font-semibold text-zinc-900 uppercase tracking-wider mb-4">More Tools</h3>
           <ul className="space-y-2 text-sm text-zinc-600">
-            <li><Link to="/tool/crop-image" className="hover:text-orange-600">Crop Image</Link></li>
-            <li><Link to="/tool/rotate-image" className="hover:text-orange-600">Rotate Image</Link></li>
-            <li><Link to="/tool/png-to-jpg" className="hover:text-orange-600">PNG to JPG</Link></li>
-            <li><Link to="/tool/jpg-to-png" className="hover:text-orange-600">JPG to PNG</Link></li>
-            <li><Link to="/tool/webp-to-png" className="hover:text-orange-600">WebP to PNG</Link></li>
+            <li><Link to="/crop-image" className="hover:text-orange-600">Crop Image</Link></li>
+            <li><Link to="/rotate-image" className="hover:text-orange-600">Rotate Image</Link></li>
+            <li><Link to="/png-to-jpg" className="hover:text-orange-600">PNG to JPG</Link></li>
+            <li><Link to="/jpg-to-png" className="hover:text-orange-600">JPG to PNG</Link></li>
+            <li><Link to="/webp-to-png" className="hover:text-orange-600">WebP to PNG</Link></li>
           </ul>
         </div>
         <div>

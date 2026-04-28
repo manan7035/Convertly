@@ -1,110 +1,111 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-  <!-- Core pages -->
+  <!-- Homepage -->
   <url>
     <loc>https://www.convertlytools.in/</loc>
-    <lastmod>2024-11-12</lastmod>
+    <lastmod>2025-07-14</lastmod>
     <changefreq>weekly</changefreq>
+    <priority>0.90</priority>
+  </url>
+
+  <!-- Tool pages — highest priority -->
+  <url>
+    <loc>https://www.convertlytools.in/png-to-webp</loc>
+    <lastmod>2025-07-14</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>1.00</priority>
   </url>
 
   <url>
-    <loc>https://www.convertlytools.in/about</loc>
-    <lastmod>2024-11-12</lastmod>
+    <loc>https://www.convertlytools.in/jpg-to-webp</loc>
+    <lastmod>2025-07-14</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.80</priority>
+    <priority>1.00</priority>
+  </url>
+
+  <url>
+    <loc>https://www.convertlytools.in/webp-to-png</loc>
+    <lastmod>2025-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.00</priority>
+  </url>
+
+  <url>
+    <loc>https://www.convertlytools.in/png-to-jpg</loc>
+    <lastmod>2025-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.00</priority>
+  </url>
+
+  <url>
+    <loc>https://www.convertlytools.in/jpg-to-png</loc>
+    <lastmod>2025-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.00</priority>
+  </url>
+
+  <url>
+    <loc>https://www.convertlytools.in/compress-image</loc>
+    <lastmod>2025-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.00</priority>
+  </url>
+
+  <url>
+    <loc>https://www.convertlytools.in/resize-image</loc>
+    <lastmod>2025-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.00</priority>
+  </url>
+
+  <url>
+    <loc>https://www.convertlytools.in/rotate-image</loc>
+    <lastmod>2025-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.00</priority>
+  </url>
+
+  <url>
+    <loc>https://www.convertlytools.in/crop-image</loc>
+    <lastmod>2025-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.00</priority>
+  </url>
+
+  <!-- Core pages -->
+  <url>
+    <loc>https://www.convertlytools.in/about</loc>
+    <lastmod>2025-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
   </url>
 
   <url>
     <loc>https://www.convertlytools.in/contact</loc>
-    <lastmod>2024-11-12</lastmod>
+    <lastmod>2025-07-14</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.70</priority>
+    <priority>0.60</priority>
   </url>
 
   <url>
     <loc>https://www.convertlytools.in/privacy</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>yearly</changefreq>
-    <priority>0.50</priority>
+    <priority>0.40</priority>
   </url>
 
   <url>
     <loc>https://www.convertlytools.in/terms</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>yearly</changefreq>
-    <priority>0.50</priority>
-  </url>
-
-  <!-- Image tool pages -->
-  <url>
-    <loc>https://www.convertlytools.in/tool/png-to-webp</loc>
-    <lastmod>2024-11-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.95</priority>
-  </url>
-
-  <url>
-    <loc>https://www.convertlytools.in/tool/jpg-to-webp</loc>
-    <lastmod>2024-11-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.95</priority>
-  </url>
-
-  <url>
-    <loc>https://www.convertlytools.in/tool/webp-to-png</loc>
-    <lastmod>2024-11-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.90</priority>
-  </url>
-
-  <url>
-    <loc>https://www.convertlytools.in/tool/png-to-jpg</loc>
-    <lastmod>2024-11-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.90</priority>
-  </url>
-
-  <url>
-    <loc>https://www.convertlytools.in/tool/jpg-to-png</loc>
-    <lastmod>2024-11-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.90</priority>
-  </url>
-
-  <url>
-    <loc>https://www.convertlytools.in/tool/compress-image</loc>
-    <lastmod>2024-11-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.90</priority>
-  </url>
-
-  <url>
-    <loc>https://www.convertlytools.in/tool/resize-image</loc>
-    <lastmod>2024-11-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.90</priority>
-  </url>
-
-  <url>
-    <loc>https://www.convertlytools.in/tool/rotate-image</loc>
-    <lastmod>2024-11-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
-  </url>
-
-  <url>
-    <loc>https://www.convertlytools.in/tool/crop-image</loc>
-    <lastmod>2024-11-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
+    <priority>0.40</priority>
   </url>
 
   <!-- Blog -->
   <url>
     <loc>https://www.convertlytools.in/blog</loc>
-    <lastmod>2024-11-12</lastmod>
+    <lastmod>2025-07-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
@@ -113,42 +114,42 @@
     <loc>https://www.convertlytools.in/blog/how-to-convert-images-for-web-optimization</loc>
     <lastmod>2024-11-12</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.75</priority>
+    <priority>0.80</priority>
   </url>
 
   <url>
     <loc>https://www.convertlytools.in/blog/best-practices-for-video-compression</loc>
     <lastmod>2024-10-28</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.75</priority>
+    <priority>0.80</priority>
   </url>
 
   <url>
     <loc>https://www.convertlytools.in/blog/webp-vs-jpeg-which-format-to-choose</loc>
     <lastmod>2024-10-05</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.75</priority>
+    <priority>0.80</priority>
   </url>
 
   <url>
     <loc>https://www.convertlytools.in/blog/resize-images-without-losing-quality</loc>
     <lastmod>2024-09-18</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.75</priority>
+    <priority>0.80</priority>
   </url>
 
   <url>
     <loc>https://www.convertlytools.in/blog/extracting-audio-from-videos-guide</loc>
     <lastmod>2024-09-02</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.75</priority>
+    <priority>0.80</priority>
   </url>
 
   <url>
     <loc>https://www.convertlytools.in/blog/converting-videos-to-gifs-social-media</loc>
     <lastmod>2024-08-20</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.75</priority>
+    <priority>0.80</priority>
   </url>
 
 </urlset>

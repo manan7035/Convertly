@@ -438,6 +438,16 @@ export default function App() {
           <main>
             <Routes>
               <Route path="/" element={<HomePage />} />
+              <Route path="/png-to-webp" element={<ToolPage />} />
+              <Route path="/jpg-to-webp" element={<ToolPage />} />
+              <Route path="/webp-to-png" element={<ToolPage />} />
+              <Route path="/png-to-jpg" element={<ToolPage />} />
+              <Route path="/jpg-to-png" element={<ToolPage />} />
+              <Route path="/compress-image" element={<ToolPage />} />
+              <Route path="/resize-image" element={<ToolPage />} />
+              <Route path="/rotate-image" element={<ToolPage />} />
+              <Route path="/crop-image" element={<ToolPage />} />
+              {/* Legacy redirects handled by vercel.json */}
               <Route path="/tool/:toolId" element={<ToolPage />} />
               <Route path="/blog" element={<BlogPage />} />
               <Route path="/blog/:slug" element={<BlogPostPage />} />

@@ -1,5 +1,16 @@
 {
   "version": 2,
+  "redirects": [
+    { "source": "/tool/png-to-webp", "destination": "/png-to-webp", "permanent": true },
+    { "source": "/tool/jpg-to-webp", "destination": "/jpg-to-webp", "permanent": true },
+    { "source": "/tool/webp-to-png", "destination": "/webp-to-png", "permanent": true },
+    { "source": "/tool/png-to-jpg", "destination": "/png-to-jpg", "permanent": true },
+    { "source": "/tool/jpg-to-png", "destination": "/jpg-to-png", "permanent": true },
+    { "source": "/tool/compress-image", "destination": "/compress-image", "permanent": true },
+    { "source": "/tool/resize-image", "destination": "/resize-image", "permanent": true },
+    { "source": "/tool/rotate-image", "destination": "/rotate-image", "permanent": true },
+    { "source": "/tool/crop-image", "destination": "/crop-image", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]

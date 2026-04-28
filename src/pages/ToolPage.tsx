@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { 
   Upload, 
@@ -17,7 +17,48 @@ import {
   RotateCw,
   RefreshCw
 } from "lucide-react";
-import { convertImageClientSide, isImageTool, getOutputExtension } from "../utils/clientConvert";
+import { convertImageClientSide, getOutputExtension } from "../utils/clientConvert";
+
+// Per-tool SEO metadata
+const toolSEO: Record<string, { title: string; description: string }> = {
+  "png-to-webp": {
+    title: "PNG to WebP Converter - Free Online Tool | Convertly Tools",
+    description: "Convert PNG to WebP online for free. Reduce file size by up to 80% with no quality loss. Browser-based, no upload, instant download. Bulk convert up to 10 files.",
+  },
+  "jpg-to-webp": {
+    title: "JPG to WebP Converter - Free Online Tool | Convertly Tools",
+    description: "Convert JPG to WebP online free. Smaller file sizes, faster websites. No upload required — conversion happens in your browser instantly.",
+  },
+  "webp-to-png": {
+    title: "WebP to PNG Converter - Free Online Tool | Convertly Tools",
+    description: "Convert WebP to PNG online for free. Lossless conversion, full transparency support. Works in your browser with no file upload needed.",
+  },
+  "compress-image": {
+    title: "Compress Image Online Free - Reduce Image File Size | Convertly Tools",
+    description: "Compress PNG, JPG and WebP images online for free. Reduce file size by 50-80% without visible quality loss. No upload, instant results.",
+  },
+  "resize-image": {
+    title: "Resize Image Online Free - Custom Pixel Dimensions | Convertly Tools",
+    description: "Resize images to any pixel dimensions online for free. Maintain aspect ratio automatically. Bulk resize up to 10 images at once in your browser.",
+  },
+  "rotate-image": {
+    title: "Rotate Image Online Free - 90, 180, 270 Degrees | Convertly Tools",
+    description: "Rotate images 90°, 180° or 270° online for free. Fix sideways photos instantly in your browser. No upload, no sign-up required.",
+  },
+  "crop-image": {
+    title: "Crop Image Online Free - Drag to Select | Convertly Tools",
+    description: "Crop images online for free with drag-to-select. Presets for Instagram, YouTube, Twitter and more. Browser-based, no upload needed.",
+  },
+  "png-to-jpg": {
+    title: "PNG to JPG Converter - Free Online Tool | Convertly Tools",
+    description: "Convert PNG to JPG online for free. Reduce file size dramatically. Transparent areas filled with white background. Bulk convert up to 10 files.",
+  },
+  "jpg-to-png": {
+    title: "JPG to PNG Converter - Free Online Tool | Convertly Tools",
+    description: "Convert JPG to PNG online for free. Lossless quality, full transparency support. Instant browser-based conversion with no file upload.",
+  },
+};
+
 const AdBanner300 = () => {
   const ref = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
@@ -195,7 +236,10 @@ const toolDescriptions: Record<string, {
 };
 
 export const ToolPage = () => {
-  const { toolId } = useParams();
+  const { toolId: toolIdParam } = useParams();
+  const location = useLocation();
+  // Support both /png-to-webp and /tool/png-to-webp URL patterns
+  const toolId = toolIdParam || location.pathname.replace(/^\//, "").replace(/\/$/, "");
   const [files, setFiles] = useState<File[]>([] as File[]);
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -272,9 +316,26 @@ export const ToolPage = () => {
 
   const toolName = toolId?.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
   const isSingleFileTool = toolId === "crop-image";
-  const apiBaseUrl = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
-  const buildEndpoint = (path: string) => apiBaseUrl ? `${apiBaseUrl}${path}` : path;
   const toolInfo = toolDescriptions[toolId || ""];
+
+  // Update page title, meta description and canonical per tool
+  React.useEffect(() => {
+    const seo = toolSEO[toolId || ""];
+    if (seo) {
+      document.title = seo.title;
+      let desc = document.querySelector('meta[name="description"]');
+      if (!desc) { desc = document.createElement("meta"); desc.setAttribute("name", "description"); document.head.appendChild(desc); }
+      desc.setAttribute("content", seo.description);
+      let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
+      if (!canonical) { canonical = document.createElement("link"); canonical.rel = "canonical"; document.head.appendChild(canonical); }
+      canonical.href = `https://www.convertlytools.in/${toolId}`;
+    }
+    return () => {
+      document.title = "Convertly Tools - Free Online PNG to WebP, Image Converter & Compressor";
+      const canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
+      if (canonical) canonical.href = "https://www.convertlytools.in/";
+    };
+  }, [toolId]);
 
   const getTargetFormat = () => {
     if (targetImageFormat) return targetImageFormat;
@@ -364,28 +425,6 @@ export const ToolPage = () => {
     } finally { setIsUploading(false); }
   };
 
-  const handleConvertVideo = async () => {
-    if (!files.length) return;
-    setIsUploading(true); setProgress(10); setError(null);
-    const formData = new FormData();
-    files.forEach(f => formData.append("files", f));
-    formData.append("targetFormat", targetFormat);
-    formData.append("toolId", toolId || "");
-    try {
-      setProgress(30);
-      const response = await fetch(buildEndpoint("/api/convert/video"), { method: "POST", body: formData });
-      if (!response.ok) { const e = await response.json().catch(() => ({})); throw new Error(e.error || "Video conversion failed."); }
-      setProgress(80);
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url; a.download = `converted-${files[0].name.split(".")[0]}.${targetFormat}`;
-      document.body.appendChild(a); a.click(); URL.revokeObjectURL(url); document.body.removeChild(a);
-      setProgress(100); setIsComplete(true); setFiles([]);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An unexpected error occurred.");
-    } finally { setIsUploading(false); }
-  };
 
   const handleConvert = () => handleConvertImages();
 

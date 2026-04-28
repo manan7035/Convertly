@@ -16,7 +16,7 @@ const tools = [
   {
     id: "png-to-webp",
     name: "PNG to WebP",
-    description: "Convert PNG images to WebP format with no quality loss.",
+    description: "Convert PNG to WebP and reduce file size by up to 80% with no quality loss.",
     icon: ImageIcon,
     category: "Image",
     color: "bg-blue-50 text-blue-600",
@@ -24,7 +24,7 @@ const tools = [
   {
     id: "jpg-to-webp",
     name: "JPG to WebP",
-    description: "Convert JPG images to WebP for better web performance.",
+    description: "Convert JPG to WebP for faster websites and better Google PageSpeed scores.",
     icon: ImageIcon,
     category: "Image",
     color: "bg-blue-50 text-blue-600",
@@ -32,7 +32,7 @@ const tools = [
   {
     id: "webp-to-png",
     name: "WebP to PNG",
-    description: "Convert WebP images back to standard PNG format.",
+    description: "Convert WebP to PNG for maximum compatibility with all apps and platforms.",
     icon: ImageIcon,
     category: "Image",
     color: "bg-blue-50 text-blue-600",
@@ -40,7 +40,7 @@ const tools = [
   {
     id: "compress-image",
     name: "Compress Image",
-    description: "Reduce image file size while maintaining quality.",
+    description: "Compress PNG, JPG and WebP images online. Reduce file size by 50-80%.",
     icon: ImageIcon,
     category: "Image",
     color: "bg-blue-50 text-blue-600",
@@ -48,7 +48,7 @@ const tools = [
   {
     id: "resize-image",
     name: "Resize Image",
-    description: "Scale your images to 50% of their original size.",
+    description: "Resize images to any custom pixel dimensions. Maintains aspect ratio automatically.",
     icon: ImageIcon,
     category: "Image",
     color: "bg-blue-50 text-blue-600",
@@ -56,7 +56,7 @@ const tools = [
   {
     id: "rotate-image",
     name: "Rotate Image",
-    description: "Rotate your images 90 degrees clockwise.",
+    description: "Rotate images 90°, 180° or 270°. Fix sideways photos from your phone instantly.",
     icon: ImageIcon,
     category: "Image",
     color: "bg-blue-50 text-blue-600",
@@ -64,7 +64,7 @@ const tools = [
   {
     id: "crop-image",
     name: "Crop Image",
-    description: "Crop your images to specific dimensions easily.",
+    description: "Crop images with drag-to-select. Presets for Instagram, YouTube, Twitter and more.",
     icon: ImageIcon,
     category: "Image",
     color: "bg-blue-50 text-blue-600",
@@ -72,7 +72,7 @@ const tools = [
   {
     id: "png-to-jpg",
     name: "PNG to JPG",
-    description: "Convert PNG images to high-quality JPG format.",
+    description: "Convert PNG to JPG to dramatically reduce file size for web and social media.",
     icon: ImageIcon,
     category: "Image",
     color: "bg-blue-50 text-blue-600",
@@ -80,7 +80,7 @@ const tools = [
   {
     id: "jpg-to-png",
     name: "JPG to PNG",
-    description: "Convert JPG images to transparent PNG format.",
+    description: "Convert JPG to PNG for lossless quality and full transparency support.",
     icon: ImageIcon,
     category: "Image",
     color: "bg-blue-50 text-blue-600",
@@ -126,11 +126,11 @@ export const HomePage = () => {
             Voted #1 Online File Converter
           </motion.span>
           <h1 className="text-5xl font-black tracking-tight text-zinc-900 sm:text-7xl leading-[1.1] mb-6">
-            Convert Files <br />
-            <span className="text-orange-600 italic">Faster.</span>
+            Free Online <br />
+            <span className="text-orange-600 italic">Image Converter</span>
           </h1>
           <p className="max-w-xl text-base text-zinc-500 sm:text-lg font-medium leading-relaxed mb-10">
-            Join 1M+ users who trust Convertly for lightning-fast image, video, and file processing. Simple, secure, and high-quality.
+            Convert PNG to WebP, JPG to WebP, compress, resize, rotate and crop images — all free, all in your browser. No upload, no sign-up, instant results.
           </p>
           
           {/* Decorative Elements */}
@@ -234,7 +234,7 @@ export const HomePage = () => {
               transition={{ delay: index * 0.1 }}
             >
               <Link
-                to={tool.disabled ? "#" : `/tool/${tool.id}`}
+                to={tool.disabled ? "#" : `/${tool.id}`}
                 className={`group relative flex h-full flex-col gap-6 rounded-3xl border border-zinc-200 bg-white p-8 transition-all hover:border-orange-600/50 hover:shadow-2xl hover:shadow-orange-600/10 ${tool.disabled ? "opacity-60 cursor-not-allowed grayscale" : ""}`}
               >
                 <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${tool.color} shadow-sm transition-transform group-hover:scale-110 group-hover:rotate-3`}>
